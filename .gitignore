@@ -1,0 +1,19 @@
+# NEO Lite — don't commit secrets or build artifacts
+.env
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+.DS_Store
+
+# Parts cache (downloaded at runtime)
+/root/.hermes/parts/
+.cache/
+
+# Logs
+*.log
+/tmp/
+
+# Editor
+.vscode/
+.idea/

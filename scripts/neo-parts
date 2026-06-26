@@ -1,0 +1,204 @@
+#!/bin/bash
+# =============================================================================
+# NEO Lite Parts Installer — Plug-in skill packs
+# =============================================================================
+# Adds modular capability packs to a running NEO Lite instance.
+# Usage:
+#   neo parts add scraper
+#   neo parts add researcher
+#   neo parts list
+#   neo parts remove scraper
+# =============================================================================
+
+set -e
+
+HERMES_HOME="${HOME}/.hermes"
+PARTS_DIR="${HERMES_HOME}/parts"
+SKILLS_DIR="${HERMES_HOME}/skills"
+
+# Registry of available parts
+# Format: name|description|repo|path|skill_name
+declare -A PARTS
+PARTS[scraper]="Scraper|Scrape web pages + extract structured content|github.com/beecurrent/neo-parts-scraper|scraper|neo-lite-scraper"
+PARTS[researcher]="Researcher|Deep research agent with parallel sub-searches|github.com/beecurrent/neo-parts-researcher|researcher|neo-lite-researcher"
+PARTS[planner]="Planner|Long-horizon planning with task breakdown|github.com/beecurrent/neo-parts-planner|planner|neo-lite-planner"
+PARTS[memory]="Memory|Persistent knowledge graph across sessions|github.com/beecurrent/neo-parts-memory|memory|neo-lite-memory"
+
+mkdir -p "$PARTS_DIR" "$SKILLS_DIR"
+
+show_banner() {
+    echo -e "\033[0;36m"
+    echo "╔══════════════════════════════════════════════╗"
+    echo "║         NEO Parts — Add-on Capability Packs    ║"
+    echo "╚══════════════════════════════════════════════╝"
+    echo -e "\033[0m"
+}
+
+cmd_list() {
+    show_banner
+    echo -e "\033[1mAvailable Parts:\033[0m\n"
+    for key in "${!PARTS[@]}"; do
+        IFS='|' read -r name desc repo path skill <<< "${PARTS[$key]}"
+        printf "  \033[0;32m%-12s\033[0m %s\n" "$name" "$desc"
+    done
+    echo ""
+    echo -e "Installed parts:"
+    if [ -d "$PARTS_DIR" ] && [ -n "$(ls -A "$PARTS_DIR" 2>/dev/null)" ]; then
+        ls -1 "$PARTS_DIR" | sed 's/^/  ✓ /'
+    else
+        echo "  (none yet — try: neo parts add scraper)"
+    fi
+    echo ""
+}
+
+cmd_add() {
+    local part_name="${1,,}"
+    if [ -z "$part_name" ]; then
+        echo "Usage: neo parts add <name>"
+        echo "Run 'neo parts list' to see available parts."
+        exit 1
+    fi
+
+    if [ -z "${PARTS[$part_name]}" ]; then
+        echo -e "\033[0;31m✗ Unknown part: $part_name\033[0m"
+        echo "Run 'neo parts list' to see available parts."
+        exit 1
+    fi
+
+    IFS='|' read -r name desc repo path skill <<< "${PARTS[$part_name]}"
+
+    echo -e "\033[0;34m→ Installing $name...\033[0m"
+    echo "  $desc"
+
+    # Check if already installed
+    if [ -d "$PARTS_DIR/$path" ]; then
+        echo -e "\033[1;33m⚠ $name is already installed.\033[0m"
+        echo "  Use 'neo parts update $part_name' to update."
+        exit 0
+    fi
+
+    # Clone the part
+    local clone_dir="$PARTS_DIR/$path"
+    echo "  Cloning from $repo..."
+
+    if git clone --depth 1 "https://${repo}.git" "$clone_dir" 2>&1 | grep -v "^Cloning"; then
+        # Copy skill if exists
+        if [ -f "$clone_dir/SKILL.md" ]; then
+            cp "$clone_dir/SKILL.md" "$SKILLS_DIR/${skill}/SKILL.md" 2>/dev/null || \
+                mkdir -p "$SKILLS_DIR/${skill}" && cp "$clone_dir/SKILL.md" "$SKILLS_DIR/${skill}/SKILL.md"
+            echo -e "\033[0;32m✓ Skill installed: $skill\033[0m"
+        fi
+
+        # Install Python deps if requirements file exists
+        if [ -f "$clone_dir/requirements.txt" ]; then
+            echo "  Installing Python dependencies..."
+            pip install -q -r "$clone_dir/requirements.txt" 2>&1 | tail -3 || true
+        fi
+
+        echo -e "\033[0;32m✓ $name installed successfully\033[0m"
+        echo ""
+        echo "Restart NEO Lite to activate: docker compose restart neo-lite"
+    else
+        echo -e "\033[0;31m✗ Installation failed\033[0m"
+        echo "Check that git is installed and you have internet access."
+        exit 1
+    fi
+}
+
+cmd_remove() {
+    local part_name="${1,,}"
+    if [ -z "$part_name" ]; then
+        echo "Usage: neo parts remove <name>"
+        exit 1
+    fi
+
+    if [ -z "${PARTS[$part_name]}" ]; then
+        echo -e "\033[0;31m✗ Unknown part: $part_name\033[0m"
+        exit 1
+    fi
+
+    IFS='|' read -r name desc repo path skill <<< "${PARTS[$part_name]}"
+
+    echo -e "\033[0;34m→ Removing $name...\033[0m"
+
+    if [ ! -d "$PARTS_DIR/$path" ]; then
+        echo -e "\033[1;33m⚠ $name is not installed.\033[0m"
+        exit 0
+    fi
+
+    rm -rf "$PARTS_DIR/$path"
+
+    if [ -d "$SKILLS_DIR/$skill" ]; then
+        rm -rf "$SKILLS_DIR/$skill"
+        echo "  Skill removed: $skill"
+    fi
+
+    echo -e "\033[0;32m✓ $name removed\033[0m"
+}
+
+cmd_update() {
+    local part_name="${1,,}"
+    if [ -z "$part_name" ]; then
+        echo "Usage: neo parts update <name>"
+        exit 1
+    fi
+
+    if [ -z "${PARTS[$part_name]}" ]; then
+        echo -e "\033[0;31m✗ Unknown part: $part_name\033[0m"
+        exit 1
+    fi
+
+    IFS='|' read -r name desc repo path skill <<< "${PARTS[$part_name]}"
+
+    local clone_dir="$PARTS_DIR/$path"
+    if [ ! -d "$clone_dir" ]; then
+        echo "$name is not installed. Run: neo parts add $part_name"
+        exit 1
+    fi
+
+    echo -e "\033[0;34m→ Updating $name...\033[0m"
+    cd "$clone_dir"
+    git pull --depth 1 2>&1 | tail -3
+
+    if [ -f "$clone_dir/SKILL.md" ]; then
+        cp "$clone_dir/SKILL.md" "$SKILLS_DIR/${skill}/SKILL.md" 2>/dev/null || true
+    fi
+
+    echo -e "\033[0;32m✓ $name updated\033[0m"
+}
+
+# Main dispatcher
+case "${1:-}" in
+    list)
+        shift
+        cmd_list "$@"
+        ;;
+    add)
+        shift
+        cmd_add "$@"
+        ;;
+    remove|rm)
+        shift
+        cmd_remove "$@"
+        ;;
+    update)
+        shift
+        cmd_update "$@"
+        ;;
+    *)
+        show_banner
+        echo "Usage: neo parts <command> [name]"
+        echo ""
+        echo "Commands:"
+        echo "  list              List available and installed parts"
+        echo "  add <name>        Install a part"
+        echo "  remove <name>     Uninstall a part"
+        echo "  update <name>     Update an installed part"
+        echo ""
+        echo "Available parts: scraper, researcher, planner, memory"
+        echo ""
+        echo "Example:"
+        echo "  neo parts add scraper"
+        echo "  neo parts list"
+        ;;
+esac

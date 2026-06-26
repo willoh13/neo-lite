@@ -1,0 +1,22 @@
+# NEO Lite
+# ─────────────────────────────────────────────────
+# Don't include the user's runtime secrets,
+# local git history, or IDE configs.
+
+# Source control
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Secrets (users supply their own .env)
+.env
+
+# Local Python / Node artifacts
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+.DS_Store
+
+# Note: Dockerfile and entrypoint.sh are KEPT — Docker needs them to build the image.

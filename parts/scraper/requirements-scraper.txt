@@ -1,0 +1,3 @@
+# NEO-Scraper dependencies (adds to NEO Core base)
+crawl4ai>=0.8.0
+playwright>=1.40.0
