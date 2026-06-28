@@ -36,7 +36,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Hermes from builder
-COPY --from=hermes-builder /root/.local/bin/hermes /usr/local/bin/hermes
+# Install script puts hermes at /usr/local/bin/hermes, hermes-agent code at
+# /usr/local/lib/hermes-agent, and config/skills at /root/.hermes
+COPY --from=hermes-builder /usr/local/bin/hermes /usr/local/bin/hermes
+COPY --from=hermes-builder /usr/local/lib/hermes-agent /usr/local/lib/hermes-agent
 COPY --from=hermes-builder /root/.hermes /root/.hermes
 
 # Copy NEO Lite configuration and scripts

@@ -69,7 +69,13 @@ if [ -f "$LICENSE_FILE" ]; then
 fi
 
 # ─── First-run wizard ──────────────────────────────────────────────────────
-if [ ! -f "${HERMES_HOME}/.onboarded" ]; then
+# Skip wizard if: no TTY (detached docker compose up -d), NEO_NONINTERACTIVE=1,
+# or env vars NEO_USER_NAME / NEO_USER_EMAIL / NEO_USER_ROLE provided.
+SKIP_WIZARD=0
+if [ ! -t 0 ]; then SKIP_WIZARD=1; echo -e "${YELLOW}⚠ No TTY detected — running in non-interactive mode.${NC}"; fi
+if [ -n "$NEO_NONINTERACTIVE" ]; then SKIP_WIZARD=1; echo -e "${YELLOW}⚠ NEO_NONINTERACTIVE=1 — skipping wizard.${NC}"; fi
+
+if [ ! -f "${HERMES_HOME}/.onboarded" ] && [ "$SKIP_WIZARD" -eq 0 ]; then
     echo ""
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${YELLOW}  👋 Welcome! Let's get to know each other.${NC}"
@@ -143,6 +149,55 @@ EOF
 
     # Mark onboarded
     date > "${HERMES_HOME}/.onboarded"
+fi
+
+# ─── Non-interactive first-run setup ─────────────────────────────────────────
+# If wizard was skipped (no TTY / NEO_NONINTERACTIVE=1), still create a minimal
+# profile so the gateway can boot and the user can re-run the wizard from
+# Telegram or terminal later.
+if [ ! -f "${HERMES_HOME}/.onboarded" ] && [ "$SKIP_WIZARD" -eq 1 ]; then
+    USER_NAME="${NEO_USER_NAME:-Operator}"
+    USER_EMAIL="${NEO_USER_EMAIL:-}"
+    USER_ROLE="${NEO_USER_ROLE:-AI Enthusiast}"
+    USER_GOAL="${NEO_USER_GOAL:-Explore what an AI Chief of Staff can do}"
+    TECH_LEVEL="${NEO_TECH_LEVEL:-2}"
+
+    cat > "${HERMES_HOME}/user_profile.json" << EOF
+{
+  "name": "${USER_NAME}",
+  "email": "${USER_EMAIL}",
+  "role": "${USER_ROLE}",
+  "tech_level": ${TECH_LEVEL},
+  "goal": "${USER_GOAL}",
+  "onboarded_at": "$(date -Iseconds)",
+  "wizard_skipped": true
+}
+EOF
+
+    cat > "${HERMES_HOME}/SOUL.md" << EOF
+# My NEO Story
+
+**Name:** ${USER_NAME}
+**Role:** ${USER_ROLE}
+**Tech Level:** ${TECH_LEVEL}
+**Goal:** ${USER_GOAL}
+
+This is the beginning of my journey with NEO — an AI Chief of Staff
+that learns who I am, remembers what matters, and helps me move faster.
+
+> The interactive wizard was skipped (no TTY / NEO_NONINTERACTIVE=1).
+> Re-run from a terminal: \`docker compose exec neo-lite bash /entrypoint.sh\`
+> Or update these fields in NEO via Telegram: "set my name to Will".
+EOF
+
+    # License + counter
+    [ -f "$LICENSE_FILE" ] && cp "$LICENSE_FILE" "${HERMES_HOME}/.license"
+    echo "0" > "${HERMES_HOME}/.daily_count"
+    echo "$(date +%Y-%m-%d)" > "${HERMES_HOME}/.daily_date"
+    date > "${HERMES_HOME}/.onboarded"
+
+    echo ""
+    echo -e "${GREEN}✓ Profile created (non-interactive). Edit via Telegram or re-run wizard.${NC}"
 fi
 
 # ─── Daily limit check ──────────────────────────────────────────────────────
