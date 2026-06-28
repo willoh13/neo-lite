@@ -33,7 +33,7 @@
 
 ---
 
-## Step 1 — Create your Telegram bot
+## Step 1 — Create your Telegram bot (do this before installing NEO Lite)
 
 - [ ] Open Telegram on your phone
 - [ ] Search for `@BotFather` (blue checkmark, official bot)
@@ -53,15 +53,25 @@
 
 ---
 
-## Step 2 — Clone the repo
+## Step 2 — Get the code
 
+Two options:
+
+**Option A — Clone (if you have access):**
 ```bash
-cd ~/                           # go to your home folder
 git clone https://github.com/willoh13/neo-lite.git
 cd neo-lite
 ```
 
-- [ ] **Verify clone succeeded** — run `ls -la`
+**Option B — Use a zip file (easiest for non-technical users):**
+- Download `neo-lite.zip` from the link Will sent you
+- Unzip it somewhere you can find it (e.g. Desktop)
+- Open Terminal, navigate to the unzipped folder:
+  ```bash
+  cd ~/Desktop/neo-lite    # or wherever you unzipped
+  ```
+
+- [ ] **Verify you're in the right place** — run `ls -la`
       - Expected: see `Dockerfile`, `docker-compose.yml`, `README.md`, `entrypoint.sh`, `tools/`, `skills/`
 
 **⏱ Time check:** ___________ (should be ~30 sec)
