@@ -1,0 +1,426 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NEO Delegation Scoring Matrix — Model Routing Config
+# ─────────────────────────────────────────────────────────────────────────────
+# Edit this file to tune how NEO picks a model for each task.
+# No code changes required — just edit scores and weights, restart NEO.
+#
+# Scoring method (adapted from AIDA's framework, applied to model selection):
+#   1. For each incoming task, score it 0–3 on each of 14 dimensions
+#   2. Multiply by per-dimension weights (configured below)
+#   3. For each candidate model, multiply its 0–4 capability scores by the same weights
+#   4. Pick the model with the highest weighted score
+#   5. Apply hard constraints first (privacy, cost ceiling, latency) — if violated, skip
+#
+# Score legend:
+#   3 = critical requirement, must be met
+#   2 = important
+#   1 = nice-to-have
+#   0 = irrelevant for this task
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─── Per-dimension weights (how much each dimension matters overall) ──────────
+# Higher weight = dimension has more impact on the final score.
+# Tune these to reflect your cost/quality tradeoffs.
+
+dimension_weights:
+  reasoning_depth:        1.5   # Multi-step logic, planning, debugging
+  context_size:           1.0   # Large inputs (>32k tokens)
+  output_length:          0.8   # Long-form generation (scripts, threads)
+  latency:                1.2   # User is waiting interactively
+  cost_ceiling:           2.0   # Hard $/task budget (bumped: cost matters)
+  privacy_locality:       1.0   # Must NOT leave the machine
+  tool_use:               1.0   # Function calling / structured output
+  code_quality:           1.2   # Programming tasks
+  multimodal:             0.8   # Vision/audio input
+  factuality:             1.3   # Low hallucination tolerance
+  language_fluency:       0.6   # Non-English output
+  rate_limit_pressure:    0.8   # Many parallel calls expected
+  auditability:           0.7   # Needs to be reproducible
+  brand_voice_match:      1.5   # Must match existing content style (bumped: voice is non-negotiable for content)
+
+# ─── Hard constraints (skip models that fail any of these) ──────────────────
+
+hard_constraints:
+  # Privacy: if task.privacy_locality = 3, only allow local models
+  block_remote_when_local_required: true
+  # Cost: if task would cost more than this $ for the model, skip it
+  max_cost_per_task_usd: 0.50
+  # Latency: if task needs response in <N seconds, exclude models slower than that
+  max_latency_seconds: 60
+  # Context: if task input exceeds model's max context, skip it
+  # (per-model context limits are listed below)
+
+# ─── Tie-breakers (when two models have similar scores) ──────────────────────
+
+tie_breakers:
+  - prefer_cheaper          # Lower $/1k tokens wins
+  - prefer_local            # Local > cloud if equal
+  - prefer_lower_latency    # Faster response wins
+
+# ─── Model registry ──────────────────────────────────────────────────────────
+# Each model has:
+#   - id: how to call it (provider/model format for OpenRouter, or ollama tag)
+#   - tier: 1=cheapest, 5=most-capable (for ordering in explain output)
+#   - cost_per_1k_tokens: {input, output} in USD
+#   - max_context_tokens: hard ceiling
+#   - avg_latency_seconds: typical p50
+#   - capabilities: 0–4 score on each of the 14 dimensions
+#      0 = can't do it
+#      1 = poor
+#      2 = adequate
+#      3 = good
+#      4 = excellent
+#   - availability: local | cloud | hybrid
+#   - notes: when to use this model
+
+models:
+  # ─── Tier 1: Local 7B-class (free, fast, lower quality) ─────────────────
+  - id: "ollama:gemma4:e4b"
+    tier: 1
+    availability: local
+    cost_per_1k_tokens: {input: 0.0, output: 0.0}
+    max_context_tokens: 8192
+    avg_latency_seconds: 0.8
+    notes: "Default for routine ops, file edits, status checks. Never for reasoning."
+    capabilities:
+      reasoning_depth: 1
+      context_size: 1
+      output_length: 2
+      latency: 4        # very fast (local)
+      cost_ceiling: 4   # free
+      privacy_locality: 4  # never leaves machine
+      tool_use: 2
+      code_quality: 1
+      multimodal: 1
+      factuality: 1
+      language_fluency: 2
+      rate_limit_pressure: 4  # unlimited
+      auditability: 3
+      brand_voice_match: 1
+
+  - id: "ollama:qwen3.6-mtp"
+    tier: 1
+    availability: local
+    cost_per_1k_tokens: {input: 0.0, output: 0.0}
+    max_context_tokens: 16384
+    avg_latency_seconds: 2.5
+    notes: "Local sub-agent workhorse. Decent at moderate reasoning."
+    capabilities:
+      reasoning_depth: 2
+      context_size: 2
+      output_length: 2
+      latency: 3
+      cost_ceiling: 4
+      privacy_locality: 4
+      tool_use: 2
+      code_quality: 2
+      multimodal: 1
+      factuality: 2
+      language_fluency: 2
+      rate_limit_pressure: 4
+      auditability: 3
+      brand_voice_match: 1
+
+  # ─── Tier 2: Ollama Cloud (free tier, broader model access) ───────────────
+  - id: "openrouter:meta-llama/llama-3.1-8b-instruct:free"
+    tier: 2
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.0, output: 0.0}
+    max_context_tokens: 131072
+    avg_latency_seconds: 4.0
+    notes: "Ollama Cloud free tier — 8B Llama. Good for batch summarization."
+    capabilities:
+      reasoning_depth: 2
+      context_size: 3
+      output_length: 2
+      latency: 3
+      cost_ceiling: 4
+      privacy_locality: 1  # leaves machine
+      tool_use: 2
+      code_quality: 2
+      multimodal: 1
+      factuality: 2
+      language_fluency: 3
+      rate_limit_pressure: 2  # rate limited on free tier
+      auditability: 2
+      brand_voice_match: 2
+
+  # ─── Tier 3: NVIDIA NIM (hosted open models, very cheap, fast) ───────────
+  - id: "openrouter:nvidia/llama-3.1-nemotron-70b-instruct"
+    tier: 3
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.0004, output: 0.0004}
+    max_context_tokens: 131072
+    avg_latency_seconds: 3.5
+    notes: "NVIDIA NIM hosted 70B. Excellent cost/perf ratio."
+    capabilities:
+      reasoning_depth: 3
+      context_size: 4
+      output_length: 3
+      latency: 3
+      cost_ceiling: 4
+      privacy_locality: 1
+      tool_use: 3
+      code_quality: 3
+      multimodal: 1
+      factuality: 3
+      language_fluency: 3
+      rate_limit_pressure: 2
+      auditability: 2
+      brand_voice_match: 2
+
+  - id: "openrouter:nvidia/mistral-large-2"
+    tier: 3
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.0006, output: 0.0006}
+    max_context_tokens: 131072
+    avg_latency_seconds: 3.0
+    notes: "Mistral Large 2 via NVIDIA NIM. Strong multilingual + coding."
+    capabilities:
+      reasoning_depth: 3
+      context_size: 4
+      output_length: 3
+      latency: 3
+      cost_ceiling: 3
+      privacy_locality: 1
+      tool_use: 3
+      code_quality: 4
+      multimodal: 1
+      factuality: 3
+      language_fluency: 4
+      rate_limit_pressure: 2
+      auditability: 2
+      brand_voice_match: 2
+
+  # ─── Tier 4: DeepSeek (cheap, smart, big context) ─────────────────────────
+  - id: "openrouter:deepseek/deepseek-chat"
+    tier: 4
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.00014, output: 0.00028}
+    max_context_tokens: 64000
+    avg_latency_seconds: 5.0
+    notes: "DeepSeek V3. Default for complex reasoning, code, long context. $0.50/mo territory."
+    capabilities:
+      reasoning_depth: 4
+      context_size: 3
+      output_length: 4
+      latency: 2
+      cost_ceiling: 4
+      privacy_locality: 1
+      tool_use: 3
+      code_quality: 4
+      multimodal: 1
+      factuality: 3
+      language_fluency: 3
+      rate_limit_pressure: 3
+      auditability: 2
+      brand_voice_match: 3
+
+  - id: "openrouter:deepseek/deepseek-r1"
+    tier: 4
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.00055, output: 0.00219}
+    max_context_tokens: 64000
+    avg_latency_seconds: 12.0
+    notes: "DeepSeek R1 — visible chain-of-thought. Use for hard debugging, math."
+    capabilities:
+      reasoning_depth: 5
+      context_size: 3
+      output_length: 4
+      latency: 1   # slow due to CoT
+      cost_ceiling: 3
+      privacy_locality: 1
+      tool_use: 2
+      code_quality: 4
+      multimodal: 1
+      factuality: 4
+      language_fluency: 3
+      rate_limit_pressure: 2
+      auditability: 3
+      brand_voice_match: 2
+
+  # ─── Bonus: Gemini (multimodal, fast, cheap) ──────────────────────────────
+  - id: "openrouter:google/gemini-2.0-flash"
+    tier: 4
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.0001, output: 0.0004}
+    max_context_tokens: 1000000
+    avg_latency_seconds: 2.0
+    notes: "Gemini 2.0 Flash. Multimodal champion. Default for any task with images/video."
+    capabilities:
+      reasoning_depth: 3
+      context_size: 5   # 1M context
+      output_length: 3
+      latency: 4        # very fast
+      cost_ceiling: 4
+      privacy_locality: 1
+      tool_use: 3
+      code_quality: 3
+      multimodal: 5     # vision + audio
+      factuality: 3
+      language_fluency: 4
+      rate_limit_pressure: 3
+      auditability: 2
+      brand_voice_match: 2
+
+  # ─── Tier 5: Grok (premium reasoning, real-time data) ─────────────────────
+  - id: "openrouter:x-ai/grok-2"
+    tier: 5
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.002, output: 0.01}
+    max_context_tokens: 131072
+    avg_latency_seconds: 4.0
+    notes: "Grok 2 — premium tier. Use for real-time X/Twitter research, hot takes, witty copy."
+    capabilities:
+      reasoning_depth: 4
+      context_size: 4
+      output_length: 4
+      latency: 3
+      cost_ceiling: 2
+      privacy_locality: 1
+      tool_use: 3
+      code_quality: 3
+      multimodal: 2  # can process images
+      factuality: 3
+      language_fluency: 4
+      rate_limit_pressure: 2
+      auditability: 2
+      brand_voice_match: 5   # bumped: Grok matches Will's voice better than any other model
+
+  - id: "openrouter:x-ai/grok-3"
+    tier: 5
+    availability: cloud
+    cost_per_1k_tokens: {input: 0.003, output: 0.015}
+    max_context_tokens: 131072
+    avg_latency_seconds: 5.0
+    notes: "Grok 3 — flagship. Use only for tasks where quality is non-negotiable."
+    capabilities:
+      reasoning_depth: 5
+      context_size: 4
+      output_length: 4
+      latency: 2
+      cost_ceiling: 1   # expensive
+      privacy_locality: 1
+      tool_use: 3
+      code_quality: 4
+      multimodal: 2
+      factuality: 4
+      language_fluency: 4
+      rate_limit_pressure: 2
+      auditability: 2
+      brand_voice_match: 5   # bumped: top of class for voice
+
+# ─── Daily budget gate ───────────────────────────────────────────────────────
+# If total spend today exceeds this, force everything to local/free tiers.
+
+daily_budget:
+  soft_cap_usd: 0.50       # warn when exceeded
+  hard_cap_usd: 2.00       # force local-only when exceeded
+  reset_hour_utc: 0        # midnight UTC
+
+# ─── Task-type presets ───────────────────────────────────────────────────────
+# Pre-scored profiles for common task types. Saves re-scoring every time.
+# These are what NEO sub-agents (NOO, NFO, NTO, NMO, NRO) use by default.
+
+task_presets:
+  # NOO default — routine ops checks (MUST be cheap, fast, ideally local)
+  ops_health_check:
+    reasoning_depth: 0   # don't need reasoning, just "is X running"
+    context_size: 0
+    output_length: 0
+    latency: 2       # cron wakeup, no user waiting
+    cost_ceiling: 3  # critical: free or bust
+    privacy_locality: 2  # prefer local, not required
+    tool_use: 2      # need to call health-check tools
+    code_quality: 0
+    multimodal: 0
+    factuality: 1
+    language_fluency: 0
+    rate_limit_pressure: 0
+    auditability: 1
+    brand_voice_match: 0
+
+  # NFO default — cost reporting, token accounting (privacy-sensitive)
+  financial_audit:
+    reasoning_depth: 2
+    context_size: 1
+    output_length: 1
+    latency: 1
+    cost_ceiling: 3
+    privacy_locality: 3  # MUST be local (financial data)
+    tool_use: 1
+    code_quality: 1
+    multimodal: 0
+    factuality: 3
+    language_fluency: 0
+    rate_limit_pressure: 0
+    auditability: 3
+    brand_voice_match: 0
+
+  # NTO default — model eval, tool vetting, deep research
+  tech_research:
+    reasoning_depth: 3
+    context_size: 3
+    output_length: 2
+    latency: 1
+    cost_ceiling: 3
+    privacy_locality: 0
+    tool_use: 2
+    code_quality: 3
+    multimodal: 0
+    factuality: 3
+    language_fluency: 1
+    rate_limit_pressure: 0
+    auditability: 2
+    brand_voice_match: 0
+
+  # NMO default — content drafts, marketing copy
+  content_draft:
+    reasoning_depth: 2
+    context_size: 2
+    output_length: 4
+    latency: 2
+    cost_ceiling: 3
+    privacy_locality: 0
+    tool_use: 1
+    code_quality: 0
+    multimodal: 0
+    factuality: 2
+    language_fluency: 2
+    rate_limit_pressure: 0
+    auditability: 1
+    brand_voice_match: 4  # MUST match Will's voice
+
+  # NRO default — web research, trend spotting
+  web_research:
+    reasoning_depth: 3
+    context_size: 4
+    output_length: 3
+    latency: 1
+    cost_ceiling: 3
+    privacy_locality: 0
+    tool_use: 2
+    code_quality: 0
+    multimodal: 0
+    factuality: 4
+    language_fluency: 1
+    rate_limit_pressure: 0
+    auditability: 2
+    brand_voice_match: 0
+
+  # Hard debugging / root cause analysis
+  hard_debug:
+    reasoning_depth: 5
+    context_size: 3
+    output_length: 2
+    latency: 1
+    cost_ceiling: 2
+    privacy_locality: 1
+    tool_use: 1
+    code_quality: 5
+    multimodal: 0
+    factuality: 4
+    language_fluency: 0
+    rate_limit_pressure: 0
+    auditability: 3
+    brand_voice_match: 0

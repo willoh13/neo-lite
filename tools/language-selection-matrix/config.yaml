@@ -1,0 +1,352 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NEO Language Selection Scoring Matrix
+# ─────────────────────────────────────────────────────────────────────────────
+# For: deciding which language to write a piece of code in.
+# Adapted from AIDA's "Query Logic Agent" framework, but adapted to NEO's
+# actual stack: Python, TypeScript, Rust, Go, Bash.
+#
+# Scoring (same pattern as delegation-scoring-matrix):
+#   For each task, score it 0–3 on each of 14 dimensions
+#   Multiply by per-dimension weights
+#   For each candidate language, multiply its 0–4 capability by the same weights
+#   Sum → pick the highest
+#
+#   task_score 0 = irrelevant
+#   task_score 1 = nice-to-have
+#   task_score 2 = important
+#   task_score 3 = critical, must be met
+#
+#   capability 0 = can't do it
+#   capability 1 = poor (workaround-heavy)
+#   capability 2 = adequate
+#   capability 3 = good
+#   capability 4 = excellent (best-in-class)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─── Per-dimension weights (tune these — they're opinionated) ────────────────
+
+dimension_weights:
+  raw_performance:        1.2   # CPU-bound? Latency-critical?
+  memory_safety:          1.0   # Guaranteed no UB / leaks required?
+  ease_of_development:    1.3   # Speed of iteration matters
+  ai_ml_ecosystem:        1.0   # numpy/torch/transformers/langchain needed?
+  numerical_computing:    0.8   # Linear algebra, scientific work?
+  web_frontend:           0.8   # Browser UI? JS interop?
+  backend_api:            1.0   # HTTP server, REST endpoints?
+  systems_programming:    0.7   # Syscalls, file descriptors, raw bytes?
+  concurrency:            1.0   # Async, threads, parallelism?
+  library_ecosystem:      1.2   # Many third-party libs available?
+  production_maint:       1.0   # Will it stay clean for years?
+  hardware_level:         0.5   # Embedded, drivers, microcontrollers?
+  learning_ease:          1.5   # Bumped: Will is non-technical, occasional dev
+  security_risk:          0.8   # Common vulns in this language?
+
+# ─── Hard constraints (filter languages that fail) ──────────────────────────
+
+hard_constraints:
+  # If the task needs AI/ML libraries and Python isn't in the answer, override
+  block_non_python_when_ai_required: true
+  # If it needs browser UI, must include TS or JavaScript
+  block_non_web_lang_when_browser_ui: true
+  # If the task says it must run in shell without install, force Bash
+  force_bash_when_zero_install: true
+
+# ─── Tie-breakers ──────────────────────────────────────────────────────────
+
+tie_breakers:
+  - prefer_python         # Will's primary language, easiest for him
+  - prefer_more_lindy     # Older / more stable = lower risk
+  - prefer_fewer_runtime_deps  # Less to install
+
+# ─── Language registry ──────────────────────────────────────────────────────
+# Five languages. Each scored 0–4 on the same 14 dimensions.
+
+languages:
+  # ─── Python — Will's primary language ──────────────────────────────────────
+  - id: python
+    tier: 1   # default for most NEO work
+    runtime_size_mb: 50      # base interpreter
+    typical_lines_for_task: 100  # ~100 lines typical
+    lindy_years: 35          # battle-tested
+    notes: "Will's home language. Default for AI/ML, scripting, glue code, web backends."
+    capabilities:
+      raw_performance: 1
+      memory_safety: 2
+      ease_of_development: 4
+      ai_ml_ecosystem: 5   # numpy/torch/transformers/langchain — all live here
+      numerical_computing: 3
+      web_frontend: 1      # Jinja templates exist but limited
+      backend_api: 3      # FastAPI, Flask, Django all excellent
+      systems_programming: 2
+      concurrency: 2       # asyncio exists, GIL is a real limitation
+      library_ecosystem: 4 # PyPI has everything
+      production_maint: 3
+      hardware_level: 1
+      learning_ease: 4     # Will knows it
+      security_risk: 2     # pickle, eval, dependency vulns
+
+  # ─── TypeScript — Browser UI + Node backends ──────────────────────────────
+  - id: typescript
+    tier: 2
+    runtime_size_mb: 80     # node + types
+    typical_lines_for_task: 120
+    lindy_years: 13
+    notes: "Use when there's a browser UI, or the team is JS-first. Strong typing helps with reliability."
+    capabilities:
+      raw_performance: 2   # V8 is fast
+      memory_safety: 2
+      ease_of_development: 3
+      ai_ml_ecosystem: 1   # transformers.js exists but tiny ecosystem
+      numerical_computing: 1
+      web_frontend: 5      # React/Vue/Svelte/Next.js — only game in town
+      backend_api: 3      # Express, Fastify, NestJS
+      systems_programming: 1
+      concurrency: 4       # async/await, event loop is excellent
+      library_ecosystem: 4 # npm
+      production_maint: 3
+      hardware_level: 0
+      learning_ease: 3     # Will doesn't know it well yet
+      security_risk: 2
+
+  # ─── Rust — Performance-critical, systems code ────────────────────────────
+  - id: rust
+    tier: 3
+    runtime_size_mb: 5      # tiny static binaries
+    typical_lines_for_task: 200  # verbose
+    lindy_years: 10
+    notes: "Use when you need C-like performance with guaranteed memory safety. Steep learning curve for Will."
+    capabilities:
+      raw_performance: 5
+      memory_safety: 5     # borrow checker = no UB
+      ease_of_development: 1   # borrow checker fights you
+      ai_ml_ecosystem: 1   # candle exists, tiny
+      numerical_computing: 3
+      web_frontend: 2      # WASM
+      backend_api: 3      # axum, actix
+      systems_programming: 5
+      concurrency: 5       # tokio
+      library_ecosystem: 3
+      production_maint: 4
+      hardware_level: 4
+      learning_ease: 1     # Will doesn't know it
+      security_risk: 1     # memory-safe = fewer vulns
+
+  # ─── Go — Simple, fast backends & CLI tools ────────────────────────────────
+  - id: go
+    tier: 2
+    runtime_size_mb: 10     # static binary
+    typical_lines_for_task: 110
+    lindy_years: 15
+    notes: "Use for CLI tools, microservices, or when you want a single static binary with no runtime."
+    capabilities:
+      raw_performance: 4
+      memory_safety: 4     # GC + bounds checking
+      ease_of_development: 3
+      ai_ml_ecosystem: 0   # nada
+      numerical_computing: 1
+      web_frontend: 1
+      backend_api: 5       # standard library HTTP is excellent
+      systems_programming: 3
+      concurrency: 5       # goroutines — its killer feature
+      library_ecosystem: 3
+      production_maint: 4  # boring is good
+      hardware_level: 2
+      learning_ease: 3
+      security_risk: 2
+
+  # ─── Bash — Shell glue, no install ─────────────────────────────────────────
+  - id: bash
+    tier: 1
+    runtime_size_mb: 0      # already there
+    typical_lines_for_task: 20   # tiny
+    lindy_years: 35
+    notes: "Use for system glue, cron jobs, file ops, anything that needs to run without installing anything."
+    capabilities:
+      raw_performance: 2   # text processing is fast
+      memory_safety: 1     # quoting hell
+      ease_of_development: 2  # debugging is rough
+      ai_ml_ecosystem: 0
+      numerical_computing: 1 # bc and awk exist
+      web_frontend: 0
+      backend_api: 1       # CGI exists
+      systems_programming: 4 # it's the system shell
+      concurrency: 2       # & and wait, xargs
+      library_ecosystem: 2 # coreutils + jq + curl
+      production_maint: 1  # bash scripts rot fast
+      hardware_level: 3
+      learning_ease: 3
+      security_risk: 3     # injection, quoting
+
+# ─── Task-type presets ──────────────────────────────────────────────────────
+# Pre-scored profiles for common coding tasks NEO encounters.
+
+task_presets:
+  # Quick automation script — short, throwaway
+  quick_script:
+    raw_performance: 0
+    memory_safety: 0
+    ease_of_development: 3
+    ai_ml_ecosystem: 1
+    numerical_computing: 0
+    web_frontend: 0
+    backend_api: 0
+    systems_programming: 1
+    concurrency: 0
+    library_ecosystem: 2
+    production_maint: 0
+    hardware_level: 0
+    learning_ease: 3
+    security_risk: 0
+
+  # AI/ML pipeline — must use Python
+  ai_pipeline:
+    raw_performance: 1
+    memory_safety: 1
+    ease_of_development: 3
+    ai_ml_ecosystem: 3
+    numerical_computing: 2
+    web_frontend: 0
+    backend_api: 0
+    systems_programming: 0
+    concurrency: 1
+    library_ecosystem: 3
+    production_maint: 2
+    hardware_level: 0
+    learning_ease: 2
+    security_risk: 1
+
+  # Web UI / frontend component
+  web_frontend:
+    raw_performance: 1
+    memory_safety: 1
+    ease_of_development: 2
+    ai_ml_ecosystem: 0
+    numerical_computing: 0
+    web_frontend: 3
+    backend_api: 0
+    systems_programming: 0
+    concurrency: 1
+    library_ecosystem: 3
+    production_maint: 2
+    hardware_level: 0
+    learning_ease: 1
+    security_risk: 1
+
+  # Backend API server (REST/GraphQL/gRPC)
+  backend_api:
+    raw_performance: 2
+    memory_safety: 2
+    ease_of_development: 3
+    ai_ml_ecosystem: 0
+    numerical_computing: 0
+    web_frontend: 0
+    backend_api: 3
+    systems_programming: 1
+    concurrency: 3
+    library_ecosystem: 3
+    production_maint: 3
+    hardware_level: 0
+    learning_ease: 2
+    security_risk: 2
+
+  # CLI tool — single binary, fast, easy to ship
+  cli_tool:
+    raw_performance: 2
+    memory_safety: 1
+    ease_of_development: 3
+    ai_ml_ecosystem: 0
+    numerical_computing: 0
+    web_frontend: 0
+    backend_api: 1
+    systems_programming: 2
+    concurrency: 1
+    library_ecosystem: 2
+    production_maint: 2
+    hardware_level: 0
+    learning_ease: 2
+    security_risk: 1
+
+  # Performance-critical code (parsers, kernels, hot paths)
+  performance_critical:
+    raw_performance: 3
+    memory_safety: 2
+    ease_of_development: 1
+    ai_ml_ecosystem: 0
+    numerical_computing: 2
+    web_frontend: 0
+    backend_api: 1
+    systems_programming: 3
+    concurrency: 2
+    library_ecosystem: 2
+    production_maint: 2
+    hardware_level: 2
+    learning_ease: 0
+    security_risk: 1
+
+  # Systems-level code (drivers, daemons, low-level OS work)
+  systems_code:
+    raw_performance: 3
+    memory_safety: 3
+    ease_of_development: 1
+    ai_ml_ecosystem: 0
+    numerical_computing: 0
+    web_frontend: 0
+    backend_api: 0
+    systems_programming: 3
+    concurrency: 2
+    library_ecosystem: 2
+    production_maint: 2
+    hardware_level: 3
+    learning_ease: 0
+    security_risk: 2
+
+  # Cron job / system glue — Python is fine (NEO env has Python). Use --zero-install for pure-bash.
+  cron_glue:
+    raw_performance: 0
+    memory_safety: 0
+    ease_of_development: 3
+    ai_ml_ecosystem: 0
+    numerical_computing: 0
+    web_frontend: 0
+    backend_api: 0
+    systems_programming: 2
+    concurrency: 0
+    library_ecosystem: 1
+    production_maint: 1
+    hardware_level: 0
+    learning_ease: 3
+    security_risk: 1
+
+  # Web scraper / browser automation
+  web_scraper:
+    raw_performance: 1
+    memory_safety: 0
+    ease_of_development: 3
+    ai_ml_ecosystem: 1
+    numerical_computing: 0
+    web_frontend: 2   # headless browser skills help
+    backend_api: 0
+    systems_programming: 1
+    concurrency: 2
+    library_ecosystem: 3   # playwright, beautifulsoup, crawl4ai
+    production_maint: 2
+    hardware_level: 0
+    learning_ease: 2
+    security_risk: 1
+
+  # Data analysis / notebook
+  data_analysis:
+    raw_performance: 1
+    memory_safety: 1
+    ease_of_development: 4
+    ai_ml_ecosystem: 3
+    numerical_computing: 3
+    web_frontend: 0
+    backend_api: 0
+    systems_programming: 0
+    concurrency: 1
+    library_ecosystem: 3   # pandas, polars, jupyter
+    production_maint: 1   # notebooks rot
+    hardware_level: 0
+    learning_ease: 3
+    security_risk: 0
