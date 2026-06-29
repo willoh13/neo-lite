@@ -75,13 +75,36 @@ tie_breakers:
 
 models:
   # ─── Tier 1: Local 7B-class (free, fast, lower quality) ─────────────────
+  - id: "ollama:gemma4-e4b-direct"
+    tier: 1
+    availability: local
+    cost_per_1k_tokens: {input: 0.0, output: 0.0}
+    max_context_tokens: 8192
+    avg_latency_seconds: 2.0
+    notes: "Primary local driver. -direct variant disables reasoning mode; returns content cleanly via OpenAI-compat."
+    capabilities:
+      reasoning_depth: 3
+      context_size: 1
+      output_length: 2
+      latency: 4        # very fast (local)
+      cost_ceiling: 4   # free
+      privacy_locality: 4  # never leaves machine
+      tool_use: 2
+      code_quality: 2
+      multimodal: 1
+      factuality: 2
+      language_fluency: 2
+      rate_limit_pressure: 4  # unlimited
+      auditability: 3
+      brand_voice_match: 3
+
   - id: "ollama:llama3.1:8b"
     tier: 1
     availability: local
     cost_per_1k_tokens: {input: 0.0, output: 0.0}
     max_context_tokens: 8192
     avg_latency_seconds: 1.5
-    notes: "Primary local driver. Use for routine ops, privacy-locked tasks. Reliable, no reasoning-mode quirks."
+    notes: "Reliable fallback. No reasoning mode, clean output. Good for sub-agent delegation."
     capabilities:
       reasoning_depth: 2
       context_size: 1
@@ -121,25 +144,57 @@ models:
       auditability: 3
       brand_voice_match: 1
 
-  # ─── DISABLED: Reasoning-mode models break OpenAI-compat layer ────────
-  # gemma4 and qwen3 use Ollama's reasoning mode which puts all output in
-  # a 'reasoning' field and returns empty 'content'. This breaks Hermes
-  # until we add think:false to chat completion wrappers. Uncomment if/when
-  # the wrapper is updated, or if your installation passes think=false.
-  # - id: "ollama:gemma4:e4b"
-  #   tier: 1
-  #   availability: local
-  #   notes: "DISABLED: reasoning mode breaks content return"
-  # - id: "ollama:gemma4:26b"
-  #   tier: 2
-  #   availability: local
-  #   notes: "DISABLED: reasoning mode breaks content return"
-  # - id: "ollama:qwen3.6:27b"
-  #   tier: 2
-  #   availability: local
-  #   notes: "DISABLED: reasoning mode breaks content return (ignores think:false)"
+  # ─── Tier 2: Local 27B-class (free, slower, better reasoning) ────────────
+  # These are -direct variants with reasoning mode disabled via system prompt.
+  # Larger models than Tier 1 — slower first request (model load ~13s for 27b)
+  # but subsequent requests are fast. Use for hard reasoning, complex code.
+  - id: "ollama:gemma4-26b-direct"
+    tier: 2
+    availability: local
+    cost_per_1k_tokens: {input: 0.0, output: 0.0}
+    max_context_tokens: 8192
+    avg_latency_seconds: 5.0
+    notes: "Local 26B reasoning. -direct variant. ~13s first-request load, ~2s warm."
+    capabilities:
+      reasoning_depth: 4
+      context_size: 1
+      output_length: 3
+      latency: 3
+      cost_ceiling: 4
+      privacy_locality: 4
+      tool_use: 3
+      code_quality: 3
+      multimodal: 1
+      factuality: 3
+      language_fluency: 3
+      rate_limit_pressure: 4
+      auditability: 3
+      brand_voice_match: 3
 
-  # ─── Tier 2: Ollama Cloud (free tier, broader model access) ───────────────
+  - id: "ollama:qwen3-27b-direct"
+    tier: 2
+    availability: local
+    cost_per_1k_tokens: {input: 0.0, output: 0.0}
+    max_context_tokens: 16384
+    avg_latency_seconds: 4.0
+    notes: "Local Qwen 27B. -direct variant. Strong at multilingual + code."
+    capabilities:
+      reasoning_depth: 4
+      context_size: 2
+      output_length: 3
+      latency: 3
+      cost_ceiling: 4
+      privacy_locality: 4
+      tool_use: 3
+      code_quality: 4
+      multimodal: 1
+      factuality: 3
+      language_fluency: 4
+      rate_limit_pressure: 4
+      auditability: 3
+      brand_voice_match: 2
+
+  # ─── Tier 3: Ollama Cloud (free tier, broader model access) ───────────────
   - id: "openrouter:meta-llama/llama-3.1-8b-instruct:free"
     tier: 2
     availability: cloud
