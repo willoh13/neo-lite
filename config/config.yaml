@@ -61,8 +61,10 @@ custom_providers:
     api_key: "${DEEPSEEK_API_KEY}"
 
   # Ollama (local — free, private, default for ops + privacy tasks)
+  # NOTE: gemma4 + qwen3 models use reasoning mode that breaks OpenAI-compat
+  # requests unless explicitly disabled. llama3.1:8b returns content cleanly.
   - name: neo-ollama
-    model: gemma4:e4b
+    model: llama3.1:8b
     base_url: "${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}"
     api_key: "${OLLAMA_API_KEY:-ollama}"
 
