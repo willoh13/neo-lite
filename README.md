@@ -6,9 +6,12 @@ NEO Lite is a self-hosted AI agent that remembers who you are, runs scheduled
 tasks, and chats with you from Telegram, Discord, or your terminal.
 
 > **What this is right now:** A working Telegram/terminal AI agent with
-> persistent memory, scheduled tasks, and 70+ bundled skills. You bring a
-> DeepSeek (or any OpenAI/Anthropic/OpenRouter) API key, point Docker at it,
-> and you have a personal AI in 10 minutes.
+> persistent memory, scheduled tasks, and 70+ bundled skills. You bring
+> your own API keys (BYOK) for whichever providers you already use
+> (DeepSeek, OpenAI, Anthropic, Gemini, Grok, Groq, Ollama, or
+> OpenRouter), point Docker at them, and you have a personal AI in
+> 10 minutes. NEO's delegation router picks the best model you have
+> unlocked for each task.
 >
 > **What this is NOT yet:** A web app. There is no browser UI in v1.0.0.
 > All chat goes through Telegram, Discord, or the terminal. (Web UI is on
@@ -122,23 +125,70 @@ send `hello`.
 
 All settings live in `.env`. Edit, then `docker compose restart neo-lite`.
 
-### Required
+### BYOK — Bring Your Own Keys
+
+NEO Lite uses a **BYOK** model. You never pay NEO Lite for inference —
+you bring API keys for the providers you already have access to, and
+NEO's delegation router picks the **best model you've unlocked** for
+each task.
+
+**Why this matters:**
+
+- **No markup.** You pay providers directly at their list price.
+- **Use what you have.** Already on OpenAI Pro? Use Claude. Only have a
+  free Ollama box? Works fine, just slower.
+- **Privacy.** Tasks with `privacy_locality: 3` (financial data,
+  personal info) are routed to local Ollama when configured — they
+  never leave your machine.
+
+### Supported providers
+
+| Provider | Cost | Best for | Where to get a key |
+|---|---|---|---|
+| **Ollama** | Free (local) | Private data, routine ops | [ollama.com/download](https://ollama.com/download) |
+| **DeepSeek** | ~$0.50/mo | Reasoning, coding, default | [platform.deepseek.com](https://platform.deepseek.com/api_keys) |
+| **Gemini** | Free tier available | Multimodal, fast | [aistudio.google.com](https://aistudio.google.com/apikey) |
+| **Groq** | Free tier available | Low-latency inference | [console.groq.com](https://console.groq.com/keys) |
+| **Grok** | Pay-as-you-go | Brand voice, real-time data | [console.x.ai](https://console.x.ai) |
+| **OpenAI** | Pay-as-you-go | GPT-4o, o3-mini | [platform.openai.com](https://platform.openai.com/api-keys) |
+| **Anthropic** | Pay-as-you-go | Claude Sonnet/Opus | [console.anthropic.com](https://console.anthropic.com/) |
+| **OpenRouter** | Pay-as-you-go | 200+ models, one key | [openrouter.ai](https://openrouter.ai/keys) |
+
+### How routing decides what model to use
+
+NEO scores each incoming task on 14 dimensions (reasoning depth,
+latency, privacy, cost ceiling, voice match, etc.) and picks the
+highest-scoring model from the providers you have configured.
+
+Example routing decisions:
+
+| Task type | Winner (if you have all keys) |
+|---|---|
+| "Check if cron is running" | Ollama (free, local, instant) |
+| "Audit my spending" | Ollama (privacy-locked) |
+| "Write a tweet in Will's voice" | Grok (best voice match) |
+| "Debug this Python traceback" | DeepSeek R1 (chain-of-thought) |
+| "Summarize this PDF" | Gemini 1M-context |
+| "Translate to Japanese" | DeepSeek/Gemini (multilingual) |
+
+The router lives at `tools/delegation-scoring-matrix/`. Tune weights
+in `config.yaml` — no code changes required.
+
+### Required env vars
 
 | Variable | What | Where to get it |
 |---|---|---|
-| `DEEPSEEK_API_KEY` | Your LLM API key | https://platform.deepseek.com/api_keys |
+| At least one API key | See provider table above | See links above |
 | `TELEGRAM_BOT_TOKEN` | Bot identity | @BotFather on Telegram |
 | `TELEGRAM_ALLOWED_USERS` | Your numeric user ID | @userinfobot on Telegram |
 
-### Optional — pick any/all
+### Optional env vars
 
-| Variable | What | Where to get it |
+| Variable | What | Default |
 |---|---|---|
-| `OPENAI_API_KEY` | Use GPT-4o/o3 | https://platform.openai.com/api-keys |
-| `ANTHROPIC_API_KEY` | Use Claude | https://console.anthropic.com/ |
-| `OPENROUTER_API_KEY` | 200+ models | https://openrouter.ai/keys |
-| `GOOGLE_API_KEY` | Gemini | https://aistudio.google.com/apikey |
-| `XAI_API_KEY` | Grok | https://console.x.ai |
+| `OLLAMA_BASE_URL` | Override Ollama endpoint (Docker host) | `http://host.docker.internal:11434/v1` |
+| `NEO_LICENSE_KEY` | Removes daily limit | (none = 5/day) |
+| `NEO_DAILY_LIMIT` | Free-tier conversation cap | `5` |
 
 ### License keys
 
@@ -146,10 +196,6 @@ All settings live in `.env`. Edit, then `docker compose restart neo-lite`.
 NEO_LICENSE_KEY=NEO-EVAL-XXXX  # 14-day unlimited trial
 NEO_LICENSE_KEY=NEO-MASTER-XXXX # Unlimited (affiliates/influencers)
 ```
-
-Without a license: 5 conversations per day. To get an `EVAL` key for testing,
-DM Will on Telegram or open an issue. (Real Stripe checkout is on Phase 2
-roadmap.)
 
 ### Profile customization (non-interactive wizard override)
 

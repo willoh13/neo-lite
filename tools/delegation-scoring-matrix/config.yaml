@@ -81,22 +81,22 @@ models:
     cost_per_1k_tokens: {input: 0.0, output: 0.0}
     max_context_tokens: 8192
     avg_latency_seconds: 0.8
-    notes: "Default for routine ops, file edits, status checks. Never for reasoning."
+    notes: "Primary local driver. Use for routine ops, reasoning, and content drafts."
     capabilities:
-      reasoning_depth: 1
+      reasoning_depth: 3
       context_size: 1
       output_length: 2
       latency: 4        # very fast (local)
       cost_ceiling: 4   # free
       privacy_locality: 4  # never leaves machine
       tool_use: 2
-      code_quality: 1
+      code_quality: 2
       multimodal: 1
-      factuality: 1
+      factuality: 2
       language_fluency: 2
       rate_limit_pressure: 4  # unlimited
       auditability: 3
-      brand_voice_match: 1
+      brand_voice_match: 3
 
   - id: "ollama:qwen3.6-mtp"
     tier: 1

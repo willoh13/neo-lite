@@ -60,6 +60,12 @@ custom_providers:
     base_url: https://api.deepseek.com/v1
     api_key: "${DEEPSEEK_API_KEY}"
 
+  # Ollama (local — free, private, default for ops + privacy tasks)
+  - name: neo-ollama
+    model: gemma4:e4b
+    base_url: "${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}"
+    api_key: "${OLLAMA_API_KEY:-ollama}"
+
   # OpenAI (GPT-4o, o3-mini, etc.)
   - name: neo-openai
     model: gpt-4o
@@ -83,6 +89,12 @@ custom_providers:
     model: gemini/gemini-2.0-flash
     base_url: https://generativelanguage.googleapis.com/v1beta
     api_key: "${GOOGLE_API_KEY}"
+
+  # Groq (fast inference, generous free tier)
+  - name: neo-groq
+    model: llama-3.3-70b-versatile
+    base_url: https://api.groq.com/openai/v1
+    api_key: "${GROQ_API_KEY}"
 
   # xAI Grok
   - name: neo-xai
