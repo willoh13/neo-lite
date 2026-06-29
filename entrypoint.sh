@@ -200,6 +200,43 @@ EOF
     echo -e "${GREEN}✓ Profile created (non-interactive). Edit via Telegram or re-run wizard.${NC}"
 fi
 
+# ─── Ollama model variants setup (first-run only) ───────────────────────────
+# Create -direct variants of reasoning-mode models so they return content via
+# the OpenAI-compat layer. Only runs when:
+#   1. Ollama is reachable (OLLAMA_BASE_URL responds, or host.docker.internal)
+#   2. We haven't done it before (marker file .ollama_variants_created)
+# Skipped gracefully if Ollama isn't running — customer can run manually:
+#   docker compose exec neo-lite python3 /root/.hermes/scripts/create_direct_variants.py
+VARIANTS_MARKER="${HERMES_HOME}/.ollama_variants_created"
+if [ ! -f "$VARIANTS_MARKER" ]; then
+    OLLAMA_CHECK_URL="${OLLAMA_BASE_URL:-http://host.docker.internal:11434}"
+    # Strip /v1 suffix for health check
+    OLLAMA_HEALTH_URL="${OLLAMA_CHECK_URL%/v1}"
+
+    if curl -s --max-time 3 "$OLLAMA_HEALTH_URL/api/tags" > /dev/null 2>&1; then
+        echo ""
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BLUE}  🔧 Setting up Ollama model variants...${NC}"
+        echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+        if python3 /root/.hermes/scripts/create_direct_variants.py 2>&1 | tail -10; then
+            date > "$VARIANTS_MARKER"
+            echo -e "${GREEN}✓ Ollama variants ready${NC}"
+        else
+            echo -e "${YELLOW}⚠ Variant creation had errors. Run manually:${NC}"
+            echo -e "${YELLOW}  docker compose exec neo-lite python3 /root/.hermes/scripts/create_direct_variants.py${NC}"
+        fi
+    else
+        echo ""
+        echo -e "${YELLOW}⚠ Ollama not reachable at ${OLLAMA_HEALTH_URL}${NC}"
+        echo -e "${YELLOW}  Skipping variant setup. To enable reasoning models later:${NC}"
+        echo -e "${YELLOW}  1. Start Ollama${NC}"
+        echo -e "${YELLOW}  2. docker compose exec neo-lite python3 /root/.hermes/scripts/create_direct_variants.py${NC}"
+        # Still mark as done so we don't spam this every restart
+        date > "$VARIANTS_MARKER"
+    fi
+fi
+
 # ─── Daily limit check ──────────────────────────────────────────────────────
 TODAY=$(date +%Y-%m-%d)
 SAVED_DATE=$(cat "${HERMES_HOME}/.daily_date" 2>/dev/null || echo "")
