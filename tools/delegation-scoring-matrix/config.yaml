@@ -75,15 +75,15 @@ tie_breakers:
 
 models:
   # ─── Tier 1: Local 7B-class (free, fast, lower quality) ─────────────────
-  - id: "ollama:gemma4:e4b"
+  - id: "ollama:llama3.1:8b"
     tier: 1
     availability: local
     cost_per_1k_tokens: {input: 0.0, output: 0.0}
     max_context_tokens: 8192
-    avg_latency_seconds: 0.8
-    notes: "Primary local driver. Use for routine ops, reasoning, and content drafts."
+    avg_latency_seconds: 1.5
+    notes: "Primary local driver. Use for routine ops, privacy-locked tasks. Reliable, no reasoning-mode quirks."
     capabilities:
-      reasoning_depth: 3
+      reasoning_depth: 2
       context_size: 1
       output_length: 2
       latency: 4        # very fast (local)
@@ -96,7 +96,7 @@ models:
       language_fluency: 2
       rate_limit_pressure: 4  # unlimited
       auditability: 3
-      brand_voice_match: 3
+      brand_voice_match: 2
 
   - id: "ollama:qwen3.6-mtp"
     tier: 1
@@ -120,6 +120,24 @@ models:
       rate_limit_pressure: 4
       auditability: 3
       brand_voice_match: 1
+
+  # ─── DISABLED: Reasoning-mode models break OpenAI-compat layer ────────
+  # gemma4 and qwen3 use Ollama's reasoning mode which puts all output in
+  # a 'reasoning' field and returns empty 'content'. This breaks Hermes
+  # until we add think:false to chat completion wrappers. Uncomment if/when
+  # the wrapper is updated, or if your installation passes think=false.
+  # - id: "ollama:gemma4:e4b"
+  #   tier: 1
+  #   availability: local
+  #   notes: "DISABLED: reasoning mode breaks content return"
+  # - id: "ollama:gemma4:26b"
+  #   tier: 2
+  #   availability: local
+  #   notes: "DISABLED: reasoning mode breaks content return"
+  # - id: "ollama:qwen3.6:27b"
+  #   tier: 2
+  #   availability: local
+  #   notes: "DISABLED: reasoning mode breaks content return (ignores think:false)"
 
   # ─── Tier 2: Ollama Cloud (free tier, broader model access) ───────────────
   - id: "openrouter:meta-llama/llama-3.1-8b-instruct:free"
