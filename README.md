@@ -31,7 +31,26 @@ tasks, and chats with you from Telegram, Discord, or your terminal.
 
 ---
 
-## Quick Start — Telegram (the path that actually works)
+## Quick Start — pick your platform
+
+### Windows (10/11) — easiest path, no git required
+
+1. Download the latest release: https://github.com/willoh13/neo-lite/releases/latest
+2. Download `neo-lite-windows.zip`
+3. Extract the ZIP to a folder (e.g., `Documents\neo-lite`)
+4. Right-click `install-windows.bat` → **Run as administrator**
+5. Answer the prompts. The installer will:
+   - Install WSL 2 if you don't have it
+   - Walk you through Docker Desktop install if needed
+   - Open Notepad for your API key
+   - Start NEO Lite and open your browser
+
+**First time takes 10-15 minutes** (mostly Docker download). After that it's a 10-second double-click.
+
+**Don't have a DeepSeek API key yet?** Get one free (~30 seconds):
+https://platform.deepseek.com/api_keys
+
+### Mac / Linux — command line path
 
 ### Prerequisites
 
