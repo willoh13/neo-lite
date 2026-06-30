@@ -12,6 +12,8 @@ REM   5. Opens your browser to NEO
 REM
 REM How to use:
 REM   - Right-click this file -> "Run as administrator"
+REM   - If Windows shows a blue "protected your PC" screen,
+REM     click "More info" then "Run anyway"
 REM   - Answer the prompts
 REM   - Wait ~10-15 minutes the first time
 REM
@@ -31,16 +33,51 @@ echo This will set up NEO Lite on your computer. It may take
 echo 10-15 minutes the first time. You'll be asked a few yes/no
 echo questions along the way.
 echo.
+echo ------------------------------------------------------------
+echo  WINDOWS DEFENDER NOTICE (READ THIS FIRST):
+echo ------------------------------------------------------------
+echo  The first time you run a .bat file, Windows may show a
+echo  blue screen that says "Windows protected your PC".
+echo
+echo  THIS IS NORMAL. To continue:
+echo    1. Click "More info" (small text below the message)
+echo    2. Click "Run anyway"
+echo
+echo  If you DO NOT see that blue screen and the window
+echo  disappears instead, that means your double-click was
+echo  blocked. Do this instead:
+echo
+echo    1. Press the Windows key, type: cmd
+echo    2. Right-click "Command Prompt", choose "Run as admin"
+echo    3. In the black window, type:
+echo         cd "%~dp0"
+echo         install-windows.bat
+echo    4. Press Enter
+echo ------------------------------------------------------------
+echo.
 pause
 
 REM ---- Step 1: Check for admin ----
 net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo.
-    echo ERROR: This installer needs to run as Administrator.
+    echo ============================================================
+    echo  ERROR: This installer needs to run as Administrator.
+    echo ============================================================
     echo.
-    echo To fix: Right-click this file and choose
-    echo         "Run as administrator".
+    echo  You probably double-clicked the file. That doesn't
+    echo  automatically give it admin rights.
+    echo.
+    echo  DO THIS INSTEAD:
+    echo    1. Press the Windows key, type: cmd
+    echo    2. Right-click "Command Prompt", choose "Run as admin"
+    echo    3. In the black window, type:
+    echo         cd "%~dp0"
+    echo         install-windows.bat
+    echo    4. Press Enter
+    echo.
+    echo  OR right-click install-windows.bat in File Explorer
+    echo  and choose "Run as administrator" (top option).
     echo.
     pause
     exit /b 1
