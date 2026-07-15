@@ -1,9 +1,11 @@
 # NEO Lite for Windows — Customer Install Guide
-## The 5-Minute Install (No Docker, No WSL, No Linux)
+## The 10-Minute Install (No Docker, No WSL, No Linux)
 
 This guide installs **NEO Agent 2** — your personal AI chief of staff — on Windows 10 or 11. It uses the official Hermes Agent installer and adds the NEO personality layer, the full Skills Bundle, and your Telegram bot. Everything is one Python install, no virtual machines, no containers.
 
-**Total install time: 5-10 minutes on a clean machine.**
+**Total install time: 10-20 minutes on a clean machine.** Most of that is downloading Python, Git, and Node — the actual NEO setup is fast.
+
+> **Important:** Ignore any file called `install-windows.bat` in your Downloads folder. That's the old Docker-based installer. This guide does NOT use Docker. If a customer service rep tells you to run that file, they're out of date — point them to this guide.
 
 ---
 
@@ -28,22 +30,23 @@ Gather these three things. If you don't have them yet, the guide shows you where
 
 4. **A Groq API key** (free, very fast) — backup AI provider. Get one: https://console.groq.com/keys
 5. **An xAI Grok API key** — premium AI for real-time data. Get one: https://console.x.ai
+6. **A Google Gemini API key** (free tier) — multimodal AI. Get one: https://aistudio.google.com/apikey
 
 You can add more AI providers later. NEO picks the best one for each task automatically.
 
 ---
 
-## Part 1 — Install NEO Lite (the easy part)
+## Part 1 — Install NEO Lite (the actual install)
 
 ### Step 1.1: Open PowerShell as Administrator
 
 - Press the **Windows key** (or click the Start button)
-- Type `powershell`
+- Type `powershell` (on Windows 10) or `terminal` (on Windows 11)
 - Right-click **"Windows PowerShell"** or **"Terminal"**
 - Choose **"Run as administrator"**
 - Click **Yes** when Windows asks if you're sure
 
-You should see a blue PowerShell window. The title bar will say "Administrator".
+You should see a PowerShell window. The title bar will say "Administrator".
 
 ### Step 1.2: Allow script execution (one-time)
 
@@ -55,46 +58,46 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 If it doesn't print anything, that's fine. If it asks for confirmation, type `Y` and press Enter.
 
-### Step 1.3: Download and run the NEO Lite installer
+### Step 1.3: Download NEO Lite and the Skills Bundle
 
 Copy and paste this whole block into PowerShell and press **Enter**:
 
 ```powershell
-# Download NEO Lite to your Downloads folder
 $downloads = [Environment]::GetFolderPath('UserProfile') + '\Downloads'
+
+# Download the NEO Lite installer
 $neoZip = "$downloads\neo-lite.zip"
 Invoke-WebRequest -Uri 'https://github.com/willoh13/neo-lite/archive/refs/heads/test-public-flag.zip' -OutFile $neoZip
-Expand-Archive -Path $neoZip -DestinationPath $downloads -Force
-Rename-Item "$downloads\neo-lite-test-public-flag" "$downloads\neo-lite" -Force
-Set-Location "$downloads\neo-lite"
-Write-Host "NEO Lite downloaded to: $downloads\neo-lite" -ForegroundColor Green
-```
 
-Wait for the download. It should take 10-30 seconds. When it's done, the last line will say `NEO Lite downloaded to: C:\Users\<yourname>\Downloads\neo-lite`.
-
-**If you get a red error about "execution of scripts is disabled"**, run Step 1.2 again, then retry.
-
-**If you get a red error about the file being blocked**, run this and try again:
-```powershell
-Unblock-File "$downloads\neo-lite.zip"
-```
-
-### Step 1.4: Download the NEO Skills Bundle
-
-This is the file that gives NEO all its capabilities (scraper, support-agent, planner, researcher, etc.). Paste and Enter:
-
-```powershell
+# Download the Skills Bundle
 $bundleZip = "$downloads\neo-bundle-v1.0.0.zip"
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
+
+# Extract both
+Expand-Archive -Path $neoZip -DestinationPath $downloads -Force
 Expand-Archive -Path $bundleZip -DestinationPath $downloads -Force
-Write-Host "Skills Bundle downloaded." -ForegroundColor Green
+
+# Unblock the extracted files (Windows security thing)
+Get-ChildItem "$downloads\neo-lite-test-public-flag" -Recurse | Unblock-File
+Get-ChildItem "$downloads\neo-bundle" -Recurse | Unblock-File
+
+# Set up the paths
+$neoSource = "$downloads\neo-lite-test-public-flag"
+$bundleSource = "$downloads\neo-bundle"
+
+Write-Host ""
+Write-Host "NEO Lite downloaded to: $neoSource" -ForegroundColor Green
+Write-Host "Skills Bundle downloaded to: $bundleSource" -ForegroundColor Green
+Write-Host ""
 ```
 
-**If the download fails**, paste the exact error and we'll debug. We'll apply the bundle in Step 1.6.
+Wait for both downloads. Should take 15-45 seconds. When done, you'll see two green status lines.
 
-### Step 1.5: Install Hermes Agent (the AI runtime)
+**If you get "execution of scripts is disabled"**, run Step 1.2 again, then retry.
 
-This is the official Hermes Agent installer. It installs Python, the runtime, and the `hermes` command. Paste and Enter:
+### Step 1.4: Install Hermes Agent (the AI runtime)
+
+This is the official Hermes Agent installer. It installs Python, Git, Node, and the `hermes` command. Paste and Enter:
 
 ```powershell
 iex (irm https://hermes-agent.nousresearch.com/install.ps1)
@@ -102,6 +105,7 @@ iex (irm https://hermes-agent.nousresearch.com/install.ps1)
 
 This will:
 - Download a small Python tool called `uv` (fast Python package manager)
+- Download Python, Git, and Node if you don't have them
 - Download Hermes Agent (about 50 MB)
 - Install it to `%LOCALAPPDATA%\hermes\`
 - Add `hermes` to your PATH
@@ -109,42 +113,101 @@ This will:
 **Watch for these prompts:**
 
 1. **"Hermes was installed successfully"** — good, press Enter
-2. **A question about which model provider to use** — choose **DeepSeek** (number depends on the menu; usually option 1 or 2)
-3. **"Paste your API key"** — paste your DeepSeek key, press Enter. It won't show on screen, that's normal
-4. **A question about Telegram** — say **Yes**, then paste your bot token, press Enter, paste your user ID, press Enter
+2. **A question about which AI provider to use** — choose **DeepSeek** (it's the first or second option, depending on the menu). If you're not sure, pick DeepSeek — you can add others later in Part 2.
+3. **"Paste your API key"** — paste your DeepSeek key, press Enter. It won't show on screen, that's normal.
+4. **A question about Telegram** — say **Yes** (`Y`), then paste your bot token, press Enter, paste your user ID, press Enter.
 
-If the installer closes and you're back at the prompt, it worked. Type this to confirm:
+**If you accidentally pick the wrong provider** (e.g., you choose Anthropic but don't have an Anthropic key), you can fix it later in Part 2.
+
+When the installer closes and you're back at the prompt, **close this PowerShell window and open a new one as Administrator** (repeat Step 1.1). The PATH change only takes effect in new windows. Then verify:
 
 ```powershell
 hermes --version
 ```
 
-You should see something like `Hermes Agent v0.17.0`. If you see "hermes: The term 'hermes' is not recognized", close PowerShell and re-open it as Administrator (Step 1.1), then try `hermes --version` again.
+You should see something like `Hermes Agent v0.17.0`. If you see "hermes: The term 'hermes' is not recognized", try one more time: close all PowerShell windows, sign out of Windows, sign back in, open a new PowerShell as Administrator, and run `hermes --version` again.
 
-### Step 1.6: Apply the NEO personality
+**If the version number is BELOW v0.17.0**, your install is too old. Re-run the `iex (irm ...)` command from this step to update.
 
-This copies NEO's voice, memory, and skills into your Hermes install. Paste and Enter:
+### Step 1.5: Apply the NEO personality + Skills Bundle
+
+This copies NEO's voice, memory, skills, and tools into your Hermes install. Paste and Enter:
 
 ```powershell
 $hermesHome = "$env:LOCALAPPDATA\hermes"
-$neoSource = "$downloads\neo-lite"
 
-# Copy personality
-Copy-Item -Path "$neoSource\config\*" -Destination "$hermesHome\" -Recurse -Force
+# Create the destination directories (Hermes doesn't pre-create these)
+New-Item -Path "$hermesHome\config", "$hermesHome\skills", "$hermesHome\tools", "$hermesHome\parts" -ItemType Directory -Force | Out-Null
+
+# Copy NEO personality
+Copy-Item -Path "$bundleSource\config\*" -Destination "$hermesHome\config\" -Recurse -Force
 
 # Copy skills
-Copy-Item -Path "$neoSource\skills\*" -Destination "$hermesHome\skills\" -Recurse -Force
+Copy-Item -Path "$bundleSource\skills\*" -Destination "$hermesHome\skills\" -Recurse -Force
 
 # Copy tools
-Copy-Item -Path "$neoSource\tools\*" -Destination "$hermesHome\tools\" -Recurse -Force
+Copy-Item -Path "$bundleSource\tools\*" -Destination "$hermesHome\tools\" -Recurse -Force
 
 # Copy parts (add-on capability packs)
-Copy-Item -Path "$neoSource\parts\*" -Destination "$hermesHome\parts\" -Recurse -Force
+Copy-Item -Path "$bundleSource\parts\*" -Destination "$hermesHome\parts\" -Recurse -Force
 
+Write-Host ""
 Write-Host "NEO Agent 2 personality applied." -ForegroundColor Green
+Write-Host "Skills Bundle installed (2 parts, 2 skills, 3 tools)." -ForegroundColor Green
+Write-Host ""
 ```
 
-You should see `NEO Agent 2 personality applied.` in green.
+You should see two green status lines. If you see red error text, paste the exact error in your support channel.
+
+### Step 1.6: Create your .env file
+
+NEO needs to know your API keys and Telegram bot settings. The Skills Bundle includes a `.env.example` template — we copy it to `.env` and you fill in the real values. Paste and Enter:
+
+```powershell
+$hermesHome = "$env:LOCALAPPDATA\hermes"
+$bundleEnvExample = "$bundleSource\neo-bundle\.env.example"
+
+# Copy the template to your Hermes home
+if (Test-Path $bundleEnvExample) {
+    Copy-Item $bundleEnvExample "$hermesHome\.env.example" -Force
+}
+
+# Create .env from the template
+if (!(Test-Path "$hermesHome\.env")) {
+    if (Test-Path "$hermesHome\.env.example") {
+        Copy-Item "$hermesHome\.env.example" "$hermesHome\.env"
+    } else {
+        # If the bundle didn't ship with .env.example, create a minimal one
+        $minimalEnv = @"
+# NEO Lite — minimal .env (edit the values below)
+DEEPSEEK_API_KEY=
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_ALLOWED_USERS=
+TELEGRAM_HOME_CHANNEL=
+NEO_AI_NAME=NEO Agent 2
+NEO_AI_TONE=friendly
+"@
+        $minimalEnv | Out-File "$hermesHome\.env" -Encoding utf8
+    }
+}
+
+# Open .env in Notepad
+notepad "$hermesHome\.env"
+```
+
+Notepad opens with the `.env` file. **Edit the file now:**
+
+1. Find the line `DEEPSEEK_API_KEY=` and paste your key after the `=`. Save with **Ctrl+S**, close Notepad.
+2. **If you have other API keys** (Groq, xAI, Google), find those lines too and add your keys. The file has all the lines — most are empty.
+3. **If the file doesn't have a `TELEGRAM_BOT_TOKEN=` line** (some templates have it commented out with `#`), add it on a new line. Same for `TELEGRAM_ALLOWED_USERS` and `TELEGRAM_HOME_CHANNEL`.
+
+**At minimum, the file must contain these 4 lines with real values** (no `#` in front, no empty after `=`):
+
+```
+DEEPSEEK_API_KEY=***
+T...=*** (Use your real Telegram user ID, not the example number.)
+
+**Save** the file (Ctrl+S) and **close** Notepad.
 
 ### Step 1.7: Start NEO
 
@@ -154,70 +217,75 @@ Paste and Enter:
 hermes gateway start
 ```
 
-You should see something like `Gateway started, PID: 12345`. The NEO service is now running in the background.
+You should see something like `Gateway started! Your bot is now online.` (the exact text varies by version).
 
-To verify it's actually responding, open Telegram on your phone, search for your bot's username (e.g., `NEOAgent2Bot`), and send it a message:
+**Verify it actually started:**
 
+```powershell
+hermes gateway status
 ```
-hello, are you alive?
-```
+
+You should see `Status: running` or similar. If it says `stopped`, wait 5 seconds and run `hermes gateway status` again.
+
+**If it says "Address already in use" or "port 8080 is busy"**, another program is using port 8080. See Troubleshooting #3 below.
+
+### Step 1.8: Talk to your bot
+
+Before NEO can message you, you need to message it first. Telegram bots can't initiate conversations.
+
+1. Open Telegram on your phone or desktop
+2. Search for your bot's username (e.g., `NEOAgent2Bot`)
+3. Send it a message: `/start`
+4. Wait 2-3 seconds
+5. Send another message: `hello, are you alive?`
 
 **Within 5-10 seconds, your bot should reply.** If it does, congratulations — NEO is installed and working.
 
+**If the bot doesn't reply:**
+
+1. Check the logs: `hermes logs --tail 50` — look for red error lines
+2. Most common issue: the `.env` file is missing one of the 4 required keys (Step 1.6)
+3. Verify your bot token: message @BotFather on Telegram, send `/token`, pick your bot, it shows the token
+4. Verify your user ID: message @userinfobot on Telegram again
+
 ---
 
-## Part 2 — Configure your .env (add API keys)
+## Part 2 — Add more AI providers (optional)
 
-This step is optional. NEO works with just DeepSeek, but adding more providers makes it smarter and gives you fallbacks.
+NEO works great with just DeepSeek, but adding more providers makes it smarter and gives you fallbacks. If you're happy with DeepSeek, skip this part.
 
-### Step 2.1: Open the .env file
+### Step 2.1: Open the .env file again
 
 ```powershell
 notepad "$env:LOCALAPPDATA\hermes\.env"
 ```
 
-Notepad opens. You'll see a long list of `KEY=` lines. Most are empty.
+### Step 2.2: Add your keys
 
-### Step 2.2: Fill in your keys
-
-Find each line and replace the empty value after `=` with your key. For example:
+For each AI provider you have, find the line and add your key. For example:
 
 ```
 DEEPSEEK_API_KEY=***
-```
+X...Save (Ctrl+S) and close Notepad.
 
-becomes:
-
-```
-DEEPSEEK_API_KEY=sk-7ad...97bc
-```
-
-**Required (you should have these from Part 1.5):**
-- `DEEPSEEK_API_KEY=*** ← your DeepSeek key
-
-**Optional (recommended for a richer experience):**
-- `XAI_API_KEY=` — your xAI Grok key
-- `GROQ_API_KEY=` — your Groq key (free, very fast)
-- `GOOGLE_API_KEY=` — your Google Gemini key (free tier)
-
-**Telegram (you should have these from Part 1.5):**
-- `TELEGRAM_BOT_TOKEN=` — your bot token
-- `TELEGRAM_ALLOWED_USERS=` — your user ID (just the number)
-- `TELEGRAM_HOME_CHANNEL=` — your user ID (just the number)
-
-**Personality (you can change these anytime):**
-- `NEO_AI_NAME=` — default is "Assistant". Change to "NEO Agent 2" or whatever you want
-- `NEO_AI_TONE=` — `casual` (default), `formal`, `warm`, `terse`, or `sarcastic`
-
-When you're done, **save the file** (Ctrl+S) and **close Notepad**.
-
-### Step 2.3: Restart NEO so the new keys take effect
+### Step 2.3: Restart NEO
 
 ```powershell
-hermes gateway restart
+hermes gateway stop
+hermes gateway start
 ```
 
-Wait 5 seconds, then test in Telegram again. If you added a new provider (e.g., Groq), NEO will use it for tasks where it's better than DeepSeek.
+Wait 5 seconds, then test in Telegram again. NEO will now use the new providers for tasks where they're better than DeepSeek.
+
+### Step 2.4: Verify the new provider is being used
+
+In Telegram, message your bot:
+
+```
+what AI providers are you using?
+```
+
+It should list the ones you configured.
 
 ---
 
@@ -233,7 +301,7 @@ hermes gateway start
 
 ### Talking to NEO
 
-Open Telegram, message your bot. That's it. Examples:
+Open Telegram, message your bot. Examples:
 
 - "what's on my calendar today?"
 - "summarize my last 5 emails"
@@ -259,11 +327,19 @@ hermes logs --tail 20
 When new skills or capabilities are released:
 
 ```powershell
-# Update the base bundle
-cd $env:LOCALAPPDATA\hermes
-git pull
+# Re-download the latest bundle
+$latest = "$env:USERPROFILE\Downloads\neo-bundle-latest.zip"
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $latest
+Expand-Archive -Path $latest -DestinationPath "$env:USERPROFILE\Downloads\bundle-latest" -Force
 
-# Restart to apply
+# Re-apply (overwrites your old skills/tools/parts)
+$hermesHome = "$env:LOCALAPPDATA\hermes"
+$bundlePath = "$env:USERPROFILE\Downloads\bundle-latest\neo-bundle"
+Copy-Item -Path "$bundlePath\skills\*" -Destination "$hermesHome\skills\" -Recurse -Force
+Copy-Item -Path "$bundlePath\tools\*" -Destination "$hermesHome\tools\" -Recurse -Force
+Copy-Item -Path "$bundlePath\parts\*" -Destination "$hermesHome\parts\" -Recurse -Force
+
+# Restart
 hermes gateway restart
 ```
 
@@ -271,28 +347,44 @@ hermes gateway restart
 
 ## Part 4 — Troubleshooting
 
-### "hermes: The term 'hermes' is not recognized"
+### 1. "hermes: The term 'hermes' is not recognized"
 
-Close PowerShell and re-open it as Administrator. The PATH update from the installer only takes effect in new windows.
+PATH isn't updated yet. Try in order:
+1. Close PowerShell, open a new one as Administrator, try again
+2. Sign out of Windows, sign back in, try again
+3. Restart Windows, try again
 
-### NEO doesn't reply in Telegram
+### 2. NEO doesn't reply in Telegram
 
-1. Check the bot is running: `hermes gateway status`
-2. If "stopped", start it: `hermes gateway start`
-3. Check the logs: `hermes logs --tail 50` — look for red error lines
-4. Verify your bot token is correct: message @BotFather on Telegram, send `/token`, pick your bot, it shows the token
-5. Verify your user ID: message @userinfobot on Telegram again
+1. Make sure you sent `/start` to the bot FIRST (Step 1.8). Telegram bots can't initiate conversations.
+2. Check the gateway is running: `hermes gateway status`
+3. If "stopped", start it: `hermes gateway start`
+4. Check the logs: `hermes logs --tail 50` — look for red error lines
+5. Most common cause: `.env` file is missing one of the 4 required keys (Step 1.6). Open the file and verify all 4 lines have real values, no `#` in front.
+6. Verify your bot token: message @BotFather on Telegram, send `/token`, pick your bot, it shows the token. Compare to what's in your `.env`.
+7. Verify your user ID: message @userinfobot on Telegram again.
 
-### NEO replies but says "I can't access that"
+### 3. "Address already in use" or "port 8080 is busy"
 
-Some capabilities need extra setup:
-- **Email/calendar** — needs Google OAuth, see `docs/google-setup.md` (coming soon)
-- **Web search** — works out of the box
-- **Code execution** — works out of the box, sandboxed
+Another program is using port 8080. Common culprits: Skype, IIS, another Docker container. To find and kill it:
 
-### Install fails partway through
+```powershell
+netstat -ano | findstr :8080
+# Find the PID (last column), then:
+taskkill /PID <the-number> /F
+```
 
-The Hermes installer creates a log. Send it to support:
+Or just change NEO's port by editing `%LOCALAPPDATA%\hermes\config\config.yaml` and changing `port: 8080` to `port: 8081`. Then restart the gateway.
+
+### 4. NEO replies but with weird/wrong answers
+
+1. Check the logs: `hermes logs --tail 50` — look for "API key invalid" or "rate limit" errors
+2. If "API key invalid", your DeepSeek key is wrong. Get a new one at https://platform.deepseek.com/api_keys
+3. If "rate limit", you've hit DeepSeek's free tier cap. Wait an hour, or add a Groq key (Part 2)
+
+### 5. Install fails partway through
+
+The Hermes installer creates a log:
 
 ```powershell
 Get-Content "$env:LOCALAPPDATA\hermes\install.log" -Tail 50
@@ -300,12 +392,12 @@ Get-Content "$env:LOCALAPPDATA\hermes\install.log" -Tail 50
 
 Paste the output in your support channel.
 
-### Reset everything and start over
+### 6. Reset everything and start over
 
 ```powershell
 hermes gateway stop
 hermes uninstall
-# Then re-run Part 1 from Step 1.5
+# Then re-run Part 1 from Step 1.4
 ```
 
 ---
@@ -360,7 +452,7 @@ If you need any of these now, the White-Glove install ($2,499) includes custom s
 
 ---
 
-**Version:** 1.0.0
+**Version:** 1.0.2
 **Last updated:** 2026-07-15
-**Tested on:** Windows 11 Home, Windows 11 Pro, Windows 10 22H2
-**Hermes Agent version:** 0.17.0+
+**Hermes Agent version required:** 0.17.0+
+**Tested on:** Windows 11 Home, Windows 11 Pro, Windows 10 22H2 (after bug-fix pass)
