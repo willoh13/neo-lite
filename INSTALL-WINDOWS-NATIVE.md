@@ -38,6 +38,8 @@ You can add more AI providers later. NEO picks the best one for each task automa
 
 ## Part 1 — Install NEO Lite (the actual install)
 
+This part has two phases. **Phase 1 installs Hermes** (the AI runtime — the foundation). **Phase 2 adds NEO on top** (personality, skills, your Telegram bot). Don't skip Phase 1.
+
 ### Step 1.1: Open PowerShell as Administrator
 
 - Press the **Windows key** (or click the Start button)
@@ -58,46 +60,15 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 If it doesn't print anything, that's fine. If it asks for confirmation, type `Y` and press Enter.
 
-### Step 1.3: Download NEO Lite and the Skills Bundle
+---
 
-Copy and paste this whole block into PowerShell and press **Enter**:
+## Phase 1: Install Hermes Agent (the foundation)
 
-```powershell
-$downloads = [Environment]::GetFolderPath('UserProfile') + '\Downloads'
+Hermes is the AI runtime — the part that actually runs the AI and talks to Telegram. NEO is the personality layer on top. Install Hermes first, then add NEO.
 
-# Download the NEO Lite installer
-$neoZip = "$downloads\neo-lite.zip"
-Invoke-WebRequest -Uri 'https://github.com/willoh13/neo-lite/archive/refs/heads/test-public-flag.zip' -OutFile $neoZip
+### Step 1.3: Install Hermes Agent
 
-# Download the Skills Bundle
-$bundleZip = "$downloads\neo-bundle-v1.0.0.zip"
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
-
-# Extract both
-Expand-Archive -Path $neoZip -DestinationPath $downloads -Force
-Expand-Archive -Path $bundleZip -DestinationPath $downloads -Force
-
-# Unblock the extracted files (Windows security thing)
-Get-ChildItem "$downloads\neo-lite-test-public-flag" -Recurse | Unblock-File
-Get-ChildItem "$downloads\neo-bundle" -Recurse | Unblock-File
-
-# Set up the paths
-$neoSource = "$downloads\neo-lite-test-public-flag"
-$bundleSource = "$downloads\neo-bundle"
-
-Write-Host ""
-Write-Host "NEO Lite downloaded to: $neoSource" -ForegroundColor Green
-Write-Host "Skills Bundle downloaded to: $bundleSource" -ForegroundColor Green
-Write-Host ""
-```
-
-Wait for both downloads. Should take 15-45 seconds. When done, you'll see two green status lines.
-
-**If you get "execution of scripts is disabled"**, run Step 1.2 again, then retry.
-
-### Step 1.4: Install Hermes Agent (the AI runtime)
-
-This is the official Hermes Agent installer. It installs Python, Git, Node, and the `hermes` command. Paste and Enter:
+Paste and Enter:
 
 ```powershell
 iex (irm https://hermes-agent.nousresearch.com/install.ps1)
@@ -129,12 +100,41 @@ You should see something like `Hermes Agent v0.17.0`. If you see "hermes: The te
 
 **If the version number is BELOW v0.17.0**, your install is too old. Re-run the `iex (irm ...)` command from this step to update.
 
+**If `hermes --version` shows v0.17.0 or higher, you're ready for Phase 2.**
+
+---
+
+## Phase 2: Add NEO on top of Hermes
+
+Now that Hermes is installed and working, we add the NEO personality, the Skills Bundle, and your API keys.
+
+### Step 1.4: Download the NEO Skills Bundle
+
+Paste and Enter:
+
+```powershell
+$downloads = [Environment]::GetFolderPath('UserProfile') + '\Downloads'
+$bundleZip = "$downloads\neo-bundle-v1.0.0.zip"
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
+Expand-Archive -Path $bundleZip -DestinationPath $downloads -Force
+Get-ChildItem "$downloads\neo-bundle" -Recurse | Unblock-File
+
+$bundleSource = "$downloads\neo-bundle"
+
+Write-Host ""
+Write-Host "Skills Bundle downloaded to: $bundleSource" -ForegroundColor Green
+Write-Host ""
+```
+
+Should take 5-15 seconds. You'll see one green status line when done.
+
 ### Step 1.5: Apply the NEO personality + Skills Bundle
 
 This copies NEO's voice, memory, skills, and tools into your Hermes install. Paste and Enter:
 
 ```powershell
 $hermesHome = "$env:LOCALAPPDATA\hermes"
+$bundleSource = "$downloads\neo-bundle"
 
 # Create the destination directories (Hermes doesn't pre-create these)
 New-Item -Path "$hermesHome\config", "$hermesHome\skills", "$hermesHome\tools", "$hermesHome\parts" -ItemType Directory -Force | Out-Null
@@ -165,6 +165,7 @@ NEO needs to know your API keys and Telegram bot settings. The Skills Bundle inc
 
 ```powershell
 $hermesHome = "$env:LOCALAPPDATA\hermes"
+$bundleSource = "$downloads\neo-bundle"
 $bundleEnvExample = "$bundleSource\neo-bundle\.env.example"
 
 # Copy the template to your Hermes home
@@ -181,10 +182,7 @@ if (!(Test-Path "$hermesHome\.env")) {
         $minimalEnv = @"
 # NEO Lite — minimal .env (edit the values below)
 DEEPSEEK_API_KEY=
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_ALLOWED_USERS=
-TELEGRAM_HOME_CHANNEL=
-NEO_AI_NAME=NEO Agent 2
+TELE...=NEO Agent 2
 NEO_AI_TONE=friendly
 "@
         $minimalEnv | Out-File "$hermesHome\.env" -Encoding utf8
@@ -204,8 +202,17 @@ Notepad opens with the `.env` file. **Edit the file now:**
 **At minimum, the file must contain these 4 lines with real values** (no `#` in front, no empty after `=`):
 
 ```
-DEEPSEEK_API_KEY=***
-T...=*** (Use your real Telegram user ID, not the example number.)
+DEEPSEEK_API_KEY=your-deepseek-key-here
+TELEGRAM_BOT_TOKEN=your-bot-token-here
+TELEGRAM_ALLOWED_USERS=your-telegram-user-id
+TELEGRAM_HOME_CHANNEL=your-telegram-user-id
+```
+
+TELEGRAM_ALLOWED_USERS=your-telegram-user-id
+TELEGRAM_HOME_CHANNEL=your-telegram-user-id
+```
+
+(Use your real Telegram user ID, not the example number.)
 
 **Save** the file (Ctrl+S) and **close** Notepad.
 
@@ -265,7 +272,7 @@ notepad "$env:LOCALAPPDATA\hermes\.env"
 For each AI provider you have, find the line and add your key. For example:
 
 ```
-DEEPSEEK_API_KEY=***
+DEEPSEEK_API_KEY=your-deepseek-key-here
 X...Save (Ctrl+S) and close Notepad.
 
 ### Step 2.3: Restart NEO
