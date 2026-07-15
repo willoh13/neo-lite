@@ -85,12 +85,12 @@ This is the file that gives NEO all its capabilities (scraper, support-agent, pl
 
 ```powershell
 $bundleZip = "$downloads\neo-bundle-v1.0.0.zip"
-Invoke-WebRequest -Uri 'https://github.com/willoh13/neo-lite/releases/download/v1.0.0/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
 Expand-Archive -Path $bundleZip -DestinationPath $downloads -Force
 Write-Host "Skills Bundle downloaded." -ForegroundColor Green
 ```
 
-**If the download fails** (404, network error, etc.), the bundle is also at `https://willoh13.github.io/neo-lite/dist/neo-bundle-v1.0.0.zip` as a backup. We'll apply the bundle in Step 1.6.
+**If the download fails**, paste the exact error and we'll debug. We'll apply the bundle in Step 1.6.
 
 ### Step 1.5: Install Hermes Agent (the AI runtime)
 
