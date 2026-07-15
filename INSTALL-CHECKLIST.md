@@ -213,17 +213,12 @@ First-message test prompts (do all 5):
 
 ---
 
-## Step 8 — Test the daily limit (optional, advanced)
+## Step 8 — Confirm you have a working, unlimited install
 
-- [ ] Check current usage:
-      `docker exec neo-lite cat /root/.hermes/.daily_count`
-- [ ] Send 5 quick messages to hit the limit (counter goes 0→5)
-- [ ] **6th message is blocked** with banner:
-      `⏰ You've used 5 conversations today. Limit: 5. Upgrade to continue.`
-- [ ] To reset: `docker exec neo-lite bash -c "echo 0 > /root/.hermes/.daily_count"`
+- [ ] Send a message
+- [ ] NEO replies — that's it, no banner, no counter, no upgrade prompt
 
-This proves the license system works. (For testing, set `NEO_DAILY_LIMIT=100`
-in `.env` to avoid hitting the limit during longer tests.)
+You can send as many messages as you want. NEO Lite is free and open source — you only pay your model provider for the actual inference (BYOK).
 
 ---
 

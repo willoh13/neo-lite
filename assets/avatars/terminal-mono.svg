@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="monoBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#monoBg)"/>
+  <!-- Faint grid -->
+  <g stroke="#262626" stroke-width="1" opacity="0.5">
+    <line x1="0" y1="128" x2="512" y2="128"/>
+    <line x1="0" y1="256" x2="512" y2="256"/>
+    <line x1="0" y1="384" x2="512" y2="384"/>
+    <line x1="128" y1="0" x2="128" y2="512"/>
+    <line x1="256" y1="0" x2="256" y2="512"/>
+    <line x1="384" y1="0" x2="384" y2="512"/>
+  </g>
+  <!-- Minimal bracket corners (terminal style) -->
+  <g stroke="#fafafa" stroke-width="3" fill="none">
+    <polyline points="80,140 80,80 140,80"/>
+    <polyline points="432,80 432,80 372,80"/>
+    <polyline points="80,372 80,432 140,432"/>
+    <polyline points="432,432 372,432 432,432"/>
+  </g>
+  <!-- Center ">" prompt -->
+  <g transform="translate(256, 256)" font-family="ui-monospace, monospace" font-weight="700" font-size="80" text-anchor="middle" fill="#fafafa">
+    <text>&gt;_</text>
+  </g>
+</svg>

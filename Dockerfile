@@ -56,6 +56,10 @@ RUN chmod +x /usr/local/bin/neo-parts && \
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Copy avatar pack and other assets (read-only, for users to discover via README)
+COPY assets/ /opt/neo-lite-assets/
+RUN chmod -R a+rX /opt/neo-lite-assets/
+
 # Create parts directory (for add-on skill packs)
 RUN mkdir -p /root/.hermes/parts
 

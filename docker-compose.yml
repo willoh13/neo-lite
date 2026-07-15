@@ -20,16 +20,19 @@ services:
       - ./.env:/root/.hermes/.env:ro
       # Mount parts directory for add-on skill packs
       - ./parts:/opt/hermes/parts:ro
+      # Mount assets (avatar pack) so you can find them on your host filesystem
+      - ./assets:/opt/neo-lite-assets:ro
     environment:
       - HERMES_HOME=/root/.hermes
       - TERM=xterm-256color
-      # Pass license key from .env
-      - NEO_LICENSE_KEY=${NEO_LICENSE_KEY}
-      - NEO_DAILY_LIMIT=${NEO_DAILY_LIMIT:-5}
+      # Pass AI name + voice from .env
+      - NEO_AI_NAME=${NEO_AI_NAME}
+      - NEO_AI_TONE=${NEO_AI_TONE}
     restart: unless-stopped
-    # Free-tier limit: 1GB RAM, 0.5 CPU
-    mem_limit: 1g
-    cpus: 0.5
+    # Resource limits — cap memory + CPU so the AI doesn't eat your whole machine.
+    # Override in .env: NEO_MEM_LIMIT=4g / NEO_CPUS=2
+    mem_limit: ${NEO_MEM_LIMIT:-1g}
+    cpus: ${NEO_CPUS:-0.5}
 
 volumes:
   neo-lite-data:

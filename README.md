@@ -2,314 +2,234 @@
 
 **~10 minutes. Telegram-first. Your own personal AI agent.**
 
-NEO Lite is a self-hosted AI agent that remembers who you are, runs scheduled
-tasks, and chats with you from Telegram, Discord, or your terminal.
-
-> **What this is right now:** A working Telegram/terminal AI agent with
-> persistent memory, scheduled tasks, and 70+ bundled skills. You bring
-> your own API keys (BYOK) for whichever providers you already use
-> (DeepSeek, OpenAI, Anthropic, Gemini, Grok, Groq, Ollama, or
-> OpenRouter), point Docker at them, and you have a personal AI in
-> 10 minutes. NEO's delegation router picks the best model you have
-> unlocked for each task.
->
-> **What this is NOT yet:** A web app. There is no browser UI in v1.0.0.
-> All chat goes through Telegram, Discord, or the terminal. (Web UI is on
-> the Phase 2 roadmap.)
+NEO Lite is a self-hosted AI partner that grows with you. Bring your own API
+key from any provider (DeepSeek, OpenAI, Anthropic, Gemini, Grok, Groq,
+Ollama, or OpenRouter), point Docker at it, and you have a personal AI in
+10 minutes — running on your hardware, remembering who you are, ready to
+chat from Telegram, Discord, or your terminal.
 
 ---
 
-## Features
+## What you get on day one
 
 - **Persistent memory** — remembers you across sessions and restarts
 - **Telegram chat** — talk to NEO from your phone (recommended)
-- **Discord / WhatsApp / terminal** — also supported
+- **Discord / terminal** — also supported
 - **Scheduled tasks (cron)** — NEO runs tasks on a schedule
-- **Daily limit** — 5 conversations/day free; unlimited with license key
+- **No rate limits** — unlimited conversations, BYOK means you pay your own model provider
+- **Free, open source** — no license keys, no tiers, no asterisks. See [docs/services.md](docs/services.md) for the white-glove setup offer
 - **70+ bundled skills** — web research, file ops, GitHub, email, video, etc.
 - **Modular Parts** — install add-on capability packs (scraper, researcher, planner)
 
 ---
 
+## What makes NEO different
+
+Most AI tools are chatbots. NEO is the **first JARVIS you actually own** — and
+unlike Iron Man, you can name yours whatever you want.
+
+| Chatbot | NEO Lite |
+|---|---|
+| Forgets you the moment the window closes | Remembers your name, your business, your preferences — across sessions and across machines |
+| One model, one provider, one bill | Bring any API key from any provider. Switch any time. No lock-in. |
+| Stays the same forever | Skills keep growing — web research, code review, email drafting, video editing, image gen, and more. The library updates itself. |
+| Runs in someone else's cloud | Runs on YOUR hardware. Your data, your models, your rules. |
+| You adapt to it | It adapts to you. Learns your voice, your tools, your workflow. |
+| One name for everyone | You name it. It remembers its name. It introduces itself. |
+
+The longer you use it, the better it gets. The longer you don't use it, the
+more you're missing. That's the JARVIS effect.
+
+---
+
 ## Quick Start — pick your platform
 
-### Windows (10/11) — easiest path, no git required
+### I have never used an API key before (5th grade path)
+
+**Windows (10/11)** — no git, no command line, no problem.
 
 1. Download the latest release: https://github.com/willoh13/neo-lite/releases/latest
 2. Download `neo-lite-windows.zip`
-3. Extract the ZIP to a folder (e.g., `Documents\neo-lite`)
+3. Extract the ZIP somewhere you'll remember (e.g., `Documents\neo-lite`)
 4. Right-click `install-windows.bat` → **Run as administrator**
-5. Answer the prompts. The installer will:
-   - Install WSL 2 if you don't have it
-   - Walk you through Docker Desktop install if needed
-   - Open Notepad for your API key
-   - Start NEO Lite and open your browser
+5. Answer a few simple questions:
+   - "Do you want NEO to use DeepSeek, OpenAI, or something else?" (pick one)
+   - "Paste your API key" (you'll get a link to the free signup page if you don't have one)
+   - "Do you want to talk to NEO on Telegram?" (yes — takes 2 min, walks you through it)
+6. Wait ~10 minutes (first time only, mostly downloading Docker)
+7. Done. Message your new bot on Telegram and say hello.
 
-**First time takes 10-15 minutes** (mostly Docker download). After that it's a 10-second double-click.
-
-**Don't have a DeepSeek API key yet?** Get one free (~30 seconds):
-https://platform.deepseek.com/api_keys
-
-### Mac / Linux — command line path
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/engine/install/) (Docker Desktop or Engine)
-- A DeepSeek API key — **free to make**, ~$0.50/month casual use:
-  https://platform.deepseek.com/api_keys
-- A Telegram account + ~2 minutes with [@BotFather](https://t.me/botfather)
-
-### Step 1 — Clone and configure (2 min)
+**Mac / Linux** — slightly more command line, same idea.
 
 ```bash
 git clone https://github.com/willoh13/neo-lite.git
 cd neo-lite
+./install.sh      # this is the Mac/Linux version of install-windows.bat
+```
 
-# Copy env template and edit
+The installer asks the same questions: which provider, what's your key, want Telegram. ~10 min total.
+
+### I already have an API key (faster path)
+
+```bash
+git clone https://github.com/willoh13/neo-lite.git
+cd neo-lite
 cp .env.example .env
-nano .env   # or use any text editor
-```
-
-In `.env`, set **at minimum:**
-
-```bash
-DEEPSEEK_API_KEY=sk-...your-key-here
-```
-
-### Step 2 — Create a Telegram bot (2 min)
-
-1. Open Telegram, message [@BotFather](https://t.me/botfather)
-2. Send `/newbot`, follow prompts, **copy the token**
-3. Find your numeric user ID by messaging [@userinfobot](https://t.me/userinfobot)
-4. Add both to `.env`:
-
-```bash
-TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-TELEGRAM_ALLOWED_USERS=123456789
-```
-
-(Optional but recommended — capture your email on first run):
-
-```bash
-NEO_USER_EMAIL=you@example.com
-```
-
-### Step 3 — Launch (3-5 min build + start)
-
-```bash
+nano .env   # paste your key, save, exit
 docker compose up -d
 ```
 
-Then watch the logs for ~30 seconds to confirm everything started:
+Total: ~3 minutes if you have Docker already.
 
-```bash
-docker compose logs -f neo-lite
-```
+### I have an OpenAI / Anthropic / Claude / ChatGPT subscription
 
-You should see:
+Same as above. In `.env`, fill in the variable for your provider:
 
-```
-⚠ No TTY detected — running in non-interactive mode.
-✓ Profile created (non-interactive). Edit via Telegram or re-run wizard.
-✓ 0/5 conversations used today
-Starting NEO Lite Gateway...
-⚕ Hermes Gateway Starting...
-```
+- OpenAI / ChatGPT → `OPENAI_API_KEY`
+- Anthropic / Claude → `ANTHROPIC_API_KEY`
+- Google Gemini → `GOOGLE_API_KEY`
+- xAI Grok → `XAI_API_KEY`
+- Groq → `GROQ_API_KEY`
+- OpenRouter (200+ models in one key) → `OPENROUTER_API_KEY`
+- Local Ollama → `OLLAMA_BASE_URL` (no key needed if running locally)
+- DeepSeek (cheapest paid option, ~$0.50/mo casual) → `DEEPSEEK_API_KEY`
 
-Press `Ctrl+C` to stop watching logs (the container keeps running).
+Don't have any of these? Start with DeepSeek — free to sign up, ~$0.50/month
+for typical use. Get a key here: https://platform.deepseek.com/api_keys
 
-### Step 4 — Say hello
+### I want to talk to NEO on Telegram (recommended)
 
-Open Telegram, find your bot (search for the username you gave BotFather),
-send `hello`.
+Takes 2 minutes, lets you message your AI from your phone.
 
-**🎉 You're talking to NEO.**
+1. Open Telegram on your phone
+2. Search for `@BotFather` (blue checkmark, official bot)
+3. Send `/newbot`
+4. BotFather asks for a name → type whatever you want
+5. BotFather asks for a username → type something unique ending in `bot`
+6. **Copy the token** BotFather sends you (looks like `7123456789:AAH...xyz`)
+7. Find your numeric user ID: search for `@userinfobot` in Telegram, send it any message
+8. Add both to `.env`:
+   ```
+   TELEGRAM_BOT_TOKEN=*** =123456789
+   ```
 
 ---
 
-## What you can do once it's running
+## Make it yours (name, voice, look)
 
-| Try this in Telegram | What NEO does |
+NEO is Will's AI. Yours needs a name.
+
+The first time you start NEO Lite, the wizard will ask you to:
+
+1. **Pick a name** — something you'll actually say out loud. "Hey Atlas, what's on my calendar?" feels different from "Hey Assistant." Suggestions: Atlas, Friday, Nova, Jinx, Sage, Echo, Cal, Iris. The wizard's default is "Assistant" if you skip.
+2. **Pick a voice** — five built-in tones (casual, formal, warm, terse, sarcastic), or drop a `personality.md` file in your NEO Lite folder for a fully custom voice. See `examples/personalities/` for starter templates.
+
+Both go into your `.env` automatically:
+
+```bash
+NEO_AI_NAME=Atlas
+NEO_AI_TONE=casual
+```
+
+Change them any time. Restart the container for changes to take effect.
+
+**Look (your Telegram bot's face):**
+
+Your Telegram bot's name, avatar, and bio are how people see your AI. Set them in 30 seconds with @BotFather:
+
+1. Open Telegram, message `@BotFather`
+2. Send `/setname` → pick a new name
+3. Send `/setuserpic` → upload an avatar
+
+We include a starter pack of 6 SVG avatars in `assets/avatars/`:
+
+| Avatar | Vibe |
 |---|---|
-| `What can you do?` | Lists capabilities |
-| `Remember that my goal is X` | Saves to long-term memory |
-| `What did I tell you about X?` | Recalls from memory |
-| `Search the web for Y` | Runs web research |
-| `Set a daily reminder to Z at 9am` | Schedules a cron job |
-| `Show my memory` | Displays saved facts |
+| `jarvis-classic.svg` | Cyan concentric circles, full JARVIS HUD |
+| `minimal-dark.svg` | Dark, purple/blue gradient ring, clean |
+| `cyan-orb.svg` | Glowing orb with ripples |
+| `friendly-gradient.svg` | Cyan-blue-purple with a subtle smile |
+| `terminal-mono.svg` | Black/white `>_` prompt for developers |
+| `light-classic.svg` | White background, dark "A" |
+
+Open the SVG in any browser, screenshot or export as 512x512 PNG, then upload via `/setuserpic`. See `assets/avatars/README.md` for full instructions and how to customize.
+
+> **Coming soon:** A web UI for NEO Lite. For v1, Telegram + terminal are the only ways to chat. The web UI is the next thing we build.
 
 ---
 
-## Configuration reference
+## What can NEO actually do on day one?
 
-All settings live in `.env`. Edit, then `docker compose restart neo-lite`.
+Out of the box, NEO comes with 70+ skills across these areas:
 
-### BYOK — Bring Your Own Keys
+- **Web research** — search, read pages, summarize, save findings
+- **File operations** — read your files, write files, organize your projects
+- **Code** — review PRs, run tests, fix bugs, scaffold new projects
+- **Email** — read your inbox, draft replies, send when you approve
+- **Calendar** — check your schedule, add events
+- **GitHub** — open PRs, review code, manage issues
+- **Video & image** — generate, edit, transcribe
+- **Memory** — remember who you are, what you're working on, your preferences
 
-NEO Lite uses a **BYOK** model. You never pay NEO Lite for inference —
-you bring API keys for the providers you already have access to, and
-NEO's delegation router picks the **best model you've unlocked** for
-each task.
-
-**Why this matters:**
-
-- **No markup.** You pay providers directly at their list price.
-- **Use what you have.** Already on OpenAI Pro? Use Claude. Only have a
-  free Ollama box? Works fine, just slower.
-- **Privacy.** Tasks with `privacy_locality: 3` (financial data,
-  personal info) are routed to local Ollama when configured — they
-  never leave your machine.
-
-### Supported providers
-
-| Provider | Cost | Best for | Where to get a key |
-|---|---|---|---|
-| **Ollama** | Free (local) | Private data, routine ops | [ollama.com/download](https://ollama.com/download) |
-| **DeepSeek** | ~$0.50/mo | Reasoning, coding, default | [platform.deepseek.com](https://platform.deepseek.com/api_keys) |
-| **Gemini** | Free tier available | Multimodal, fast | [aistudio.google.com](https://aistudio.google.com/apikey) |
-| **Groq** | Free tier available | Low-latency inference | [console.groq.com](https://console.groq.com/keys) |
-| **Grok** | Pay-as-you-go | Brand voice, real-time data | [console.x.ai](https://console.x.ai) |
-| **OpenAI** | Pay-as-you-go | GPT-4o, o3-mini | [platform.openai.com](https://platform.openai.com/api-keys) |
-| **Anthropic** | Pay-as-you-go | Claude Sonnet/Opus | [console.anthropic.com](https://console.anthropic.com/) |
-| **OpenRouter** | Pay-as-you-go | 200+ models, one key | [openrouter.ai](https://openrouter.ai/keys) |
-
-### How routing decides what model to use
-
-NEO scores each incoming task on 14 dimensions (reasoning depth,
-latency, privacy, cost ceiling, voice match, etc.) and picks the
-highest-scoring model from the providers you have configured.
-
-Example routing decisions:
-
-| Task type | Winner (if you have all keys) |
-|---|---|
-| "Check if cron is running" | Ollama (free, local, instant) |
-| "Audit my spending" | Ollama (privacy-locked) |
-| "Write a tweet in Will's voice" | Grok (best voice match) |
-| "Debug this Python traceback" | DeepSeek R1 (chain-of-thought) |
-| "Summarize this PDF" | Gemini 1M-context |
-| "Translate to Japanese" | DeepSeek/Gemini (multilingual) |
-
-The router lives at `tools/delegation-scoring-matrix/`. Tune weights
-in `config.yaml` — no code changes required.
-
-### Required env vars
-
-| Variable | What | Where to get it |
-|---|---|---|
-| At least one API key | See provider table above | See links above |
-| `TELEGRAM_BOT_TOKEN` | Bot identity | @BotFather on Telegram |
-| `TELEGRAM_ALLOWED_USERS` | Your numeric user ID | @userinfobot on Telegram |
-
-### Optional env vars
-
-| Variable | What | Default |
-|---|---|---|
-| `OLLAMA_BASE_URL` | Override Ollama endpoint (Docker host) | `http://host.docker.internal:11434/v1` |
-| `NEO_LICENSE_KEY` | Removes daily limit | (none = 5/day) |
-| `NEO_DAILY_LIMIT` | Free-tier conversation cap | `5` |
-
-### License keys
-
-```bash
-NEO_LICENSE_KEY=NEO-EVAL-XXXX  # 14-day unlimited trial
-NEO_LICENSE_KEY=NEO-MASTER-XXXX # Unlimited (affiliates/influencers)
-```
-
-### Profile customization (non-interactive wizard override)
-
-If you skip the interactive wizard (default in Docker), NEO uses these env
-vars to pre-fill your profile:
-
-```bash
-NEO_USER_NAME=Your Name
-NEO_USER_EMAIL=you@example.com
-NEO_USER_ROLE=Founder
-NEO_USER_GOAL=Ship my product
-NEO_TECH_LEVEL=2   # 1=not technical, 2=some, 3=very
-```
-
-Or run the wizard interactively:
-
-```bash
-docker compose exec neo-lite bash
-/entrypoint.sh
-```
+The skill library grows over time. NEO is on a continuous improvement cycle —
+the same way Iron Man's JARVIS got smarter with every movie. The 70 skills
+shipped today are the floor, not the ceiling.
 
 ---
 
-## Troubleshooting
+## Under the hood (for the curious)
 
-### Container won't start
+NEO Lite runs on top of [Hermes Agent](https://hermes-agent.nousresearch.com/docs) —
+an open-source agent framework maintained by Nous Research. You don't need to
+install or configure Hermes separately; it's bundled in the container.
 
-```bash
-docker compose logs neo-lite
-```
+**Why this matters for you:**
 
-Most common issues:
+- ✅ Real team, active project, regular updates
+- ✅ Works with any OpenAI-compatible model
+- ✅ Well-documented at hermes-agent.nousresearch.com/docs
 
-| Symptom | Fix |
-|---|---|
-| `Dockerfile build fails` on hermes install | Network issue — retry. If persistent, check `curl https://hermes-agent.nousresearch.com/install.sh` from the host. |
-| Container stuck in `Created` | Old bug, fixed in latest. `docker compose pull && docker compose up -d`. |
-| `No module named 'hermes_agent'` | Old build didn't copy hermes-agent. Rebuild: `docker compose build --no-cache`. |
-| Gateway warns `No user allowlists configured` | You forgot `TELEGRAM_ALLOWED_USERS=your_id`. Add it, restart. |
-
-### Telegram bot doesn't respond
-
-1. Did you send the bot a message first? Telegram requires user-initiated contact.
-2. Check your user ID is correct: message @userinfobot, copy the number.
-3. Check logs: `docker compose logs -f neo-lite | grep -i telegram`
-4. Test from terminal instead: `docker compose exec neo-lite hermes chat` (interactive)
-
-### Reset everything
-
-```bash
-docker compose down -v   # WARNING: deletes memory, profile, all data
-docker compose up -d
-```
+**If you're a developer** and want to extend NEO, customize agent behavior,
+build new skills, or contribute back upstream, see the [Developer Guide](docs/developer.md).
 
 ---
 
-## Project structure
+## The 5-minute test (verify it actually works)
+
+After install, send this exact message to your Telegram bot:
 
 ```
-neo-lite/
-├── docker-compose.yml          # One command to run
-├── Dockerfile                  # Multi-stage build
-├── .env.example                # API keys template
-├── entrypoint.sh               # Boot + license + first-run logic
-├── config/                     # Hermes Agent config
-├── scripts/                    # NEO custom tools
-├── skills/                     # NEO's reusable workflows
-├── tools/                      # Customer-facing routers
-│   ├── delegation-scoring-matrix/   # Pick the right model for any task
-│   └── language-selection-matrix/    # Pick the right language for any task
-├── parts/                      # Optional add-on capability packs
-└── README.md                   # This file
+What model are you and what skills do you have?
 ```
 
----
+You should get a response that:
 
-## What's NOT in v1.0.0 (honest list)
+1. Names the model you're using (e.g., "I'm running on DeepSeek Chat" or
+   "I'm using GPT-4o via your OpenAI key")
+2. Lists at least 10 of its skills
+3. Ends with a question back to you (NEO is curious by default)
 
-These features are planned but **not** shipped:
-
-- ❌ **Web UI** — no `http://localhost:8080` chat. Use Telegram/Discord/terminal.
-- ❌ **Real payment integration** — license keys are string-prefix checked only.
-- ❌ **Adaptive routing** — model/language routers are static-tuned (Phase 2).
-- ❌ **Quota awareness** — router doesn't yet read API rate limits (Phase 2).
-
-See [ROADMAP.md](./ROADMAP.md) for the full plan.
+If you get that, you're done. Go build something.
 
 ---
 
-## Support
+## What this is NOT yet
 
-- **Issues:** https://github.com/willoh13/neo-lite/issues
-- **Community:** https://discord.gg/neocloud (coming soon)
-- **Email:** DM Will on Telegram for priority support
+- ❌ A web app. There is no browser UI in v1.0.0. All chat goes through
+  Telegram, Discord, or the terminal. **(Web UI is next on the roadmap — see "Make it yours" above for what to expect.)**
+- ❌ A replacement for human judgment. NEO is a partner, not a boss.
+- ❌ Free for unlimited use. NEO Lite is free and open source, no asterisks.
+  Paid engagements are white-glove setup (Will's time), not access.
+  See [docs/services.md](docs/services.md).
 
 ---
 
-Built on [Hermes Agent](https://hermes-agent.nousresearch.com) by Nous Research.
+## Getting help
+
+- 📖 Docs: https://hermes-agent.nousresearch.com/docs
+- 💬 Community: [Discord link]
+- 🐛 Bugs: github.com/willoh13/neo-lite/issues
+- ✉️ Direct: reply to the email that sent you this link
+
+If you get stuck, send the error message to the bot — NEO can usually
+figure out what went wrong.

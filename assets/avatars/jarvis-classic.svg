@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0a1530"/>
+      <stop offset="100%" stop-color="#03060f"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.6"/>
+      <stop offset="60%" stop-color="#00d4ff" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- Outer glow halo -->
+  <circle cx="256" cy="256" r="240" fill="url(#glow)"/>
+  <!-- Concentric circles -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.4"/>
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+  <circle cx="256" cy="256" r="100" fill="none" stroke="#00d4ff" stroke-width="3" opacity="0.9"/>
+  <!-- Inner core -->
+  <circle cx="256" cy="256" r="40" fill="#00d4ff" opacity="0.9"/>
+  <circle cx="256" cy="256" r="20" fill="#ffffff"/>
+  <!-- Indicator dot at top (thinking pulse) -->
+  <circle cx="256" cy="76" r="8" fill="#00d4ff"/>
+  <!-- 4 corner ticks (HUD) -->
+  <g stroke="#00d4ff" stroke-width="2" opacity="0.6">
+    <line x1="40" y1="40" x2="80" y2="40"/>
+    <line x1="40" y1="40" x2="40" y2="80"/>
+    <line x1="472" y1="40" x2="432" y2="40"/>
+    <line x1="472" y1="40" x2="472" y2="80"/>
+    <line x1="40" y1="472" x2="80" y2="472"/>
+    <line x1="40" y1="472" x2="40" y2="432"/>
+    <line x1="472" y1="472" x2="432" y2="472"/>
+    <line x1="472" y1="472" x2="472" y2="432"/>
+  </g>
+</svg>

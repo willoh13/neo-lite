@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="orbCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </radialGradient>
+    <filter id="orbGlow">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="#020617"/>
+  <!-- Outer ripple -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.2"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.3"/>
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.5"/>
+  <!-- Glowing orb -->
+  <circle cx="256" cy="256" r="100" fill="url(#orbCore)" filter="url(#orbGlow)"/>
+  <!-- Highlight -->
+  <circle cx="232" cy="232" r="30" fill="#ffffff" opacity="0.6"/>
+</svg>
