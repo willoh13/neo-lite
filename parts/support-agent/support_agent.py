@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NEO Lite Support Agent — per-customer install + first-7-day support.
+NEO Operator Support Agent — per-customer install + first-7-day support.
 
 Spin up one of these per active customer. Listens for Telegram messages,
 follows the install runbook or troubleshooting FAQ, escalates to Will
@@ -170,7 +170,7 @@ def handle_install_step(state: dict, message: str) -> Optional[str]:
         state["install_step"] = 1
         state["install_status"] = "in_progress"
         return (
-            f"Hi! I'm the support agent for your NEO Lite install. Will roped me "
+            f"Hi! I'm the support agent for your NEO Operator install. Will roped me "
             f"in so he doesn't have to be on every call. We'll do this together "
             f"over the next ~2 hours. I'll drive, you watch and answer questions.\n\n"
             f"Quick scope check:\n"

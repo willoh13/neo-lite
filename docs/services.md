@@ -1,15 +1,15 @@
 # White-Glove Setup — $2,499
 
-You bring a Minisforum (or any small Linux/Windows box that stays on). We bring NEO Lite, fully wired up, in 2 hours over Zoom. You leave with an AI chief of staff that texts you back on Telegram.
+You bring a Minisforum (or any small Linux/Windows box that stays on). We bring NEO Operator, fully wired up, in 2 hours over Zoom. You leave with an AI chief of staff that texts you back on Telegram.
 
 ## What's included
 
 - 2-hour live install session (Zoom or screen-share)
-- NEO Lite installed and running on your hardware
+- NEO Operator installed and running on your hardware
 - One custom skill wired up to your real workflow (Gmail triage, Notion second brain, Drive search, GitHub PR digest, etc. — your pick)
 - Your Telegram bot connected and tested
 - 60 days of post-install support via Telegram (handled by NEO + Will's sub-agent fleet, with Will personally on the escalation list)
-- The full open-source NEO Lite stack — you own it, no license, no rate limits, no monthly fees
+- The full open-source NEO Operator stack — you own it, no license, no rate limits, no monthly fees
 
 ## What you need to bring
 

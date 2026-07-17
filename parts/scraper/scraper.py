@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NEO-Scraper — Website extraction tool for NEO Lite.
+NEO-Scraper — Website extraction tool for NEO Operator.
 
 Ships as part of the NEO-Scraper skill pack.
 Crawls web pages and returns clean markdown for LLM consumption.

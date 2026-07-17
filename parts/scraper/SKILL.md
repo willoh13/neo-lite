@@ -9,13 +9,13 @@ category: autonomous-ai-agents
 # NEO-Scraper 🔍
 
 ## Overview
-Web scraping skill for NEO Lite. Extracts clean text from any web page — removes ads, navigation, popups. Output is LLM-ready markdown.
+Web scraping skill for NEO Operator. Extracts clean text from any web page — removes ads, navigation, popups. Output is LLM-ready markdown.
 
 ## Installation
 This skill is a **NEO Part** — it layers on top of NEO Core:
 
 ```bash
-# 1. Stop NEO Lite if running
+# 1. Stop NEO Operator if running
 docker compose down
 
 # 2. Copy the scraper part into place

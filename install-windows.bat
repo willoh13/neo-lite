@@ -1,13 +1,13 @@
 @echo off
 REM ============================================================
-REM NEO Lite — Windows Installer
+REM NEO Operator — Windows Installer
 REM ============================================================
 REM What this does:
 REM   1. Checks if WSL 2 is installed (and installs it if not)
 REM   2. Checks if Docker Desktop is installed (and walks you
 REM      through install if not)
 REM   3. Starts Docker if it isn't running
-REM   4. Starts NEO Lite
+REM   4. Starts NEO Operator
 REM   5. Opens your browser to NEO
 REM
 REM How to use:
@@ -26,10 +26,10 @@ chcp 65001 >nul
 
 echo.
 echo ============================================================
-echo                NEO Lite Installer for Windows
+echo                NEO Operator Installer for Windows
 echo ============================================================
 echo.
-echo This will set up NEO Lite on your computer. It may take
+echo This will set up NEO Operator on your computer. It may take
 echo 10-15 minutes the first time. You'll be asked a few yes/no
 echo questions along the way.
 echo.
@@ -100,7 +100,7 @@ echo [2/5] Checking for WSL (Windows Subsystem for Linux)...
 wsl --status >nul 2>&1
 if %errorLevel% neq 0 (
     echo.
-    echo WSL is not installed. This is required for NEO Lite.
+    echo WSL is not installed. This is required for NEO Operator.
     echo Installing it now. Your computer may reboot.
     echo.
     set /p INSTALL_WSL="Install WSL? (y/n): "
@@ -207,20 +207,20 @@ if not exist ".env" (
     )
 )
 
-REM ---- Start NEO Lite ----
+REM ---- Start NEO Operator ----
 echo.
 echo ============================================================
-echo                Starting NEO Lite
+echo                Starting NEO Operator
 echo ============================================================
 echo.
 echo This takes 2-3 minutes the first time (downloading the
-echo NEO Lite container). After that it's about 10 seconds.
+echo NEO Operator container). After that it's about 10 seconds.
 echo.
 
 docker compose up -d
 if %errorLevel% neq 0 (
     echo.
-    echo Something went wrong starting NEO Lite.
+    echo Something went wrong starting NEO Operator.
     echo.
     echo Common fixes:
     echo   - Make sure Docker Desktop is running
@@ -236,7 +236,7 @@ if %errorLevel% neq 0 (
 
 echo.
 echo ============================================================
-echo           NEO Lite is running!
+echo           NEO Operator is running!
 echo ============================================================
 echo.
 echo Opening your browser to NEO in 3 seconds...

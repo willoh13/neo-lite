@@ -1,6 +1,6 @@
-# NEO Lite Tools
+# NEO Operator Tools
 
-Optional, standalone tools that ship with NEO Lite. Each is a pure-Python scoring engine — no API keys, no cloud calls, no install beyond `pyyaml`.
+Optional, standalone tools that ship with NEO Operator. Each is a pure-Python scoring engine — no API keys, no cloud calls, no install beyond `pyyaml`.
 
 ## Tools
 
@@ -72,15 +72,15 @@ df -h /
 
 ## Installation
 
-### Inside NEO Lite (already there)
+### Inside NEO Operator (already there)
 
 Both tools are pre-installed in the Docker container at `/opt/hermes/tools/`. Just `cd /opt/hermes/tools/delegation-scoring-matrix` and run.
 
 ### Standalone install
 
 ```bash
-git clone https://github.com/willoh13/neo-lite.git
-cd neo-lite/tools/delegation-scoring-matrix
+git clone https://github.com/willoh13/neo-operator.git
+cd neo-operator/tools/delegation-scoring-matrix
 pip install pyyaml
 python3 router.py --list-models
 ```
@@ -107,4 +107,4 @@ Same for adding languages (`tools/language-selection-matrix/config.yaml`).
 
 ## License
 
-MIT — same as NEO Lite.
+MIT — same as NEO Operator.

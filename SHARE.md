@@ -1,10 +1,10 @@
-# 🚀 NEO Lite — Free AI Chief of Staff
+# 🚀 NEO Operator — Free AI Chief of Staff
 
 **5 minutes. One command. Your own JARVIS.**
 
 ## What it does
 
-NEO Lite is a free AI agent that **remembers you**, **researches the web**, **manages your files**, and **delegates work to sub-agents** — all running on YOUR machine, controlled by YOU.
+NEO Operator is a free AI agent that **remembers you**, **researches the web**, **manages your files**, and **delegates work to sub-agents** — all running on YOUR machine, controlled by YOU.
 
 Built on [Hermes Agent](https://hermes-agent.nousresearch.com) by Nous Research.
 
@@ -33,7 +33,7 @@ Built on [Hermes Agent](https://hermes-agent.nousresearch.com) by Nous Research.
 
 # 2. Run this on your machine (Docker required)
 git clone https://github.com/beecurrent/neo-lite.git
-cd neo-lite
+cd neo-operator
 cp .env.example .env
 # paste your DEEPSEEK_API_KEY into .env
 docker compose up -d
@@ -112,7 +112,7 @@ Available Parts:
 
 ---
 
-**This is the part where the rubber meets the road.** Every copy of NEO Lite someone installs is a future customer. Free tier is the funnel. Blueprint/Cloud/DFY are the monetization.
+**This is the part where the rubber meets the road.** Every copy of NEO Operator someone installs is a future customer. Free tier is the funnel. Blueprint/Cloud/DFY are the monetization.
 
 Give away 10 copies this week. Then 10 more. Then 100. The compounding is in the network.
 

@@ -1,4 +1,4 @@
-# NEO Lite — Clean Install Test Checklist (ASUS Duo)
+# NEO Operator — Clean Install Test Checklist (ASUS Duo)
 
 **Purpose:** Verify every step of a fresh install works on this exact machine
 **before** sending it to Jeff or anyone else. Check each box only when you
@@ -33,12 +33,12 @@
 
 ---
 
-## Step 1 — Create your Telegram bot (do this before installing NEO Lite)
+## Step 1 — Create your Telegram bot (do this before installing NEO Operator)
 
 - [ ] Open Telegram on your phone
 - [ ] Search for `@BotFather` (blue checkmark, official bot)
 - [ ] Send `/newbot`
-- [ ] BotFather asks for a name → type: `NEO Lite Test`
+- [ ] BotFather asks for a name → type: `NEO Operator Test`
 - [ ] BotFather asks for a username → type something unique ending in `bot`,
       e.g. `neo_lite_will_test_bot`
 - [ ] **Copy the bot token** BotFather sends you (looks like `7123456789:AAH...xyz`)
@@ -59,16 +59,16 @@ Two options:
 
 **Option A — Clone (if you have access):**
 ```bash
-git clone https://github.com/willoh13/neo-lite.git
-cd neo-lite
+git clone https://github.com/willoh13/neo-operator.git
+cd neo-operator
 ```
 
 **Option B — Use a zip file (easiest for non-technical users):**
-- Download `neo-lite.zip` from the link Will sent you
+- Download `neo-operator.zip` from the link Will sent you
 - Unzip it somewhere you can find it (e.g. Desktop)
 - Open Terminal, navigate to the unzipped folder:
   ```bash
-  cd ~/Desktop/neo-lite    # or wherever you unzipped
+  cd ~/Desktop/neo-operator    # or wherever you unzipped
   ```
 
 - [ ] **Verify you're in the right place** — run `ls -la`
@@ -120,7 +120,7 @@ Save and exit (Ctrl+X, Y, Enter in nano).
 docker compose build
 ```
 
-- [ ] **Build completes without errors** — Expected final line: `neo-lite  Built`
+- [ ] **Build completes without errors** — Expected final line: `neo-operator  Built`
 - [ ] **Build took 1-5 min** — record time: ___________
 
 If build fails:
@@ -136,14 +136,14 @@ If build fails:
 docker compose up -d
 ```
 
-- [ ] **Container starts** — Expected: prints `Container neo-lite  Started`
-- [ ] **Watch the logs** — in a second terminal: `docker compose logs -f neo-lite`
+- [ ] **Container starts** — Expected: prints `Container neo-operator  Started`
+- [ ] **Watch the logs** — in a second terminal: `docker compose logs -f neo-operator`
 - [ ] **Within 15 seconds, see all 3 lines:**
       - `⚠ No TTY detected — running in non-interactive mode.`
       - `✓ Profile created (non-interactive). Edit via Telegram or re-run wizard.`
       - `✓ 0/5 conversations used today`
 - [ ] **See gateway start banner**:
-      - `Starting NEO Lite Gateway...`
+      - `Starting NEO Operator Gateway...`
       - `⚕ Hermes Gateway Starting...`
 
 Press `Ctrl+C` to exit the log viewer (container keeps running).
@@ -163,10 +163,10 @@ docker compose ps
 ```
 
 - [ ] **Container status shows `Up`** (not `Created` or `Exited`)
-      - Expected: `neo-lite   Up X seconds   0.0.0.0:8080->8080/tcp`
+      - Expected: `neo-operator   Up X seconds   0.0.0.0:8080->8080/tcp`
 
 ```bash
-docker exec neo-lite ls -la /root/.hermes/ | head -20
+docker exec neo-operator ls -la /root/.hermes/ | head -20
 ```
 
 - [ ] **Files exist inside the container**:
@@ -176,7 +176,7 @@ docker exec neo-lite ls -la /root/.hermes/ | head -20
       - `.daily_count` and `.daily_date`
 
 ```bash
-docker exec neo-lite hermes --version
+docker exec neo-operator hermes --version
 ```
 
 - [ ] **Hermes responds** — Expected: prints version number (e.g. `0.x.y`)
@@ -218,31 +218,31 @@ First-message test prompts (do all 5):
 - [ ] Send a message
 - [ ] NEO replies — that's it, no banner, no counter, no upgrade prompt
 
-You can send as many messages as you want. NEO Lite is free and open source — you only pay your model provider for the actual inference (BYOK).
+You can send as many messages as you want. NEO Operator is free and open source — you only pay your model provider for the actual inference (BYOK).
 
 ---
 
 ## Step 9 — Test persistence (the critical one)
 
-- [ ] Send NEO a memorable message: `remember my goal is to test NEO Lite end-to-end`
+- [ ] Send NEO a memorable message: `remember my goal is to test NEO Operator end-to-end`
 - [ ] **Restart the container:**
-      `docker compose restart neo-lite`
+      `docker compose restart neo-operator`
 - [ ] Wait 10 seconds for it to come back up
 - [ ] Send in Telegram: `what's my goal?`
 - [ ] **NEO recalls it correctly** — proves memory persists across restarts
 
 If NEO forgot → memory volume is broken. Check:
-`docker volume ls | grep neo-lite` — should show `neo-lite_neo-lite-data`.
+`docker volume ls | grep neo-operator` — should show `neo-operator_neo-operator-data`.
 
 ---
 
 ## Step 10 — Test the tools (proves customer-facing features work)
 
 - [ ] Test delegation router from your host:
-      `docker exec neo-lite python /opt/hermes/tools/delegation-scoring-matrix/router.py --task-preset ops_health_check --task "is the gateway up?"`
+      `docker exec neo-operator python /opt/hermes/tools/delegation-scoring-matrix/router.py --task-preset ops_health_check --task "is the gateway up?"`
       - Expected: prints the chosen model (likely `ollama:gemma4:e4b` or similar)
 - [ ] Test language router:
-      `docker exec neo-lite python /opt/hermes/tools/language-selection-matrix/language-router.py --task-preset cron_glue --task "write a daily cleanup script"`
+      `docker exec neo-operator python /opt/hermes/tools/language-selection-matrix/language-router.py --task-preset cron_glue --task "write a daily cleanup script"`
       - Expected: prints chosen language (likely `bash`)
 
 ---
@@ -260,7 +260,7 @@ If NEO forgot → memory volume is broken. Check:
 
 ## If anything failed
 
-Copy the relevant `docker compose logs neo-lite` output and the step number
+Copy the relevant `docker compose logs neo-operator` output and the step number
 that failed, then send to Will. Common patterns:
 
 | Failure | Most likely cause | Fix |
@@ -277,7 +277,7 @@ that failed, then send to Will. Common patterns:
 
 ## Once everything passes
 
-**Congratulations — NEO Lite works on the ASUS Duo.** That means:
+**Congratulations — NEO Operator works on the ASUS Duo.** That means:
 
 1. The Docker image is shippable
 2. The Telegram path is the real customer entry point (not the web UI)

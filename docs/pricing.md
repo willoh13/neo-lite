@@ -1,8 +1,8 @@
 # Pricing
 
-NEO Lite itself is free and open source. No license, no rate limits, no monthly fees. Bring your own API key, run it on your own hardware, own the whole thing.
+NEO Operator itself is free and open source. No license, no rate limits, no monthly fees. Bring your own API key, run it on your own hardware, own the whole thing.
 
-This page lists the things you can pay for *around* NEO Lite.
+This page lists the things you can pay for *around* NEO Operator.
 
 ---
 
@@ -42,7 +42,7 @@ neo-parts install pro-skills-bundle
 | `smart-home` | Philips Hue + home automation |
 | `note-taking` | Obsidian vault sync and search |
 
-**Not yet shipping.** Will announces when it's ready. The plan is to bundle the skills, package them as a `parts/pro-skills-bundle/` add-on, and list on Gumroad. The free NEO Lite stays free — the bundle is the upgrade.
+**Not yet shipping.** Will announces when it's ready. The plan is to bundle the skills, package them as a `parts/pro-skills-bundle/` add-on, and list on Gumroad. The free NEO Operator stays free — the bundle is the upgrade.
 
 **Pricing model:** $79 one-time. Updates for life. New skills Will adds in the future get added to the bundle, you pay nothing extra.
 
@@ -70,8 +70,8 @@ The "Will runs it for you" tier. You don't install anything. You text a Telegram
 
 ## What you will never pay for
 
-- NEO Lite itself
-- The skill packs that ship with NEO Lite out of the box (`neo-lite-planner`, `neo-lite-researcher`)
+- NEO Operator itself
+- The skill packs that ship with NEO Operator out of the box (`neo-operator-planner`, `neo-operator-researcher`)
 - Reading the source code
 - Forks and modifications
 - Running it on your own hardware

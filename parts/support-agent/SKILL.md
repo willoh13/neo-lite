@@ -1,19 +1,19 @@
 ---
 name: neo-lite-support
-description: Customer support agent for NEO Lite white-glove installs. Drives end-to-end installs, handles first-7-day support questions, escalates to Will only when stuck. Works autonomously for ~80% of customer interactions.
+description: Customer support agent for NEO Operator white-glove installs. Drives end-to-end installs, handles first-7-day support questions, escalates to Will only when stuck. Works autonomously for ~80% of customer interactions.
 version: 0.1.0
 author: NEO (for Will)
 category: customer-success
 ---
 
-# NEO Lite Support Agent 🛟
+# NEO Operator Support Agent 🛟
 
 The support agent that does the actual white-glove install work, so Will doesn't have to be on every Zoom call. Designed to be spun up per-customer (one agent per active install/support case) and to escalate to Will only when it hits something it can't handle.
 
 ## What this is
 
 A specialized AI agent (built on Hermes) that:
-1. **Drives a fresh install** of NEO Lite on a customer's hardware, end-to-end
+1. **Drives a fresh install** of NEO Operator on a customer's hardware, end-to-end
 2. **Handles first-7-day support** — "my Telegram bot stopped replying", "how do I add another API key?", "where do I see my memory?"
 3. **Escalates to Will** when it can't solve the problem in 2 attempts, or when the customer asks for a human
 4. **Logs everything** so Will can review what worked, what didn't, and what to put in the next FAQ
@@ -23,7 +23,7 @@ The point is **Will-as-bottleneck removal**. The customer paid $2,499 for a *wor
 ## What this is NOT
 
 - A replacement for Will on the sales call (Will does sales, the agent does delivery)
-- A general-purpose agent (it's locked to NEO Lite install + support)
+- A general-purpose agent (it's locked to NEO Operator install + support)
 - A "Will in the loop for everything" thing (the agent is *trusted* to handle the common path)
 
 ## How it works
@@ -81,7 +81,7 @@ Will has all the context to pick up the conversation. The customer doesn't see a
 | `SUPPORT_SESSION_DIR` | yes | Where to store per-customer session files (default: `~/support-sessions`) |
 | `WILL_TELEGRAM_CHAT_ID` | yes | Will's Telegram chat ID for escalations |
 | `CUSTOMER_TELEGRAM_TOPIC` | yes | The customer's Telegram topic ID |
-| `NEO_LITE_INSTALL_PATH` | no | Path to NEO Lite on the agent's machine (default: `~/neo-lite`) |
+| `NEO_OPERATOR_INSTALL_PATH` | no | Path to NEO Operator on the agent's machine (default: `~/neo-operator`) |
 | `SUPPORT_QUIET_HOURS` | no | "22:00-08:00" — don't ping Will during these hours unless critical |
 
 ## Per-customer state

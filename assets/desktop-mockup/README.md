@@ -1,4 +1,4 @@
-# NEO Lite Desktop — Tier 3 Concept
+# NEO Operator Desktop — Tier 3 Concept
 
 > "The first JARVIS you actually own — and you can see its brain grow."
 
@@ -89,7 +89,7 @@ on your disk.** Specifically, an Obsidian vault.
 ├── 0-Inbox/                       ← raw notes, gets sorted weekly
 ├── 1-Projects/                    ← active projects
 │   ├── Q3 content calendar.md
-│   ├── NEO Lite launch.md
+│   ├── NEO Operator launch.md
 │   └── Daily AI briefing.md
 ├── 2-Areas/                       ← ongoing responsibilities
 │   ├── Health.md
@@ -140,7 +140,7 @@ When the desktop app is open, NEO's tools include a `vault` toolset:
 - `vault_today()` — append to today's daily note
 
 When the app is closed, these tools are unavailable — NEO falls back to its
-built-in JSONL memory. So you can keep using NEO Lite via Telegram or CLI
+built-in JSONL memory. So you can keep using NEO Operator via Telegram or CLI
 without Obsidian; the desktop app just unlocks the deeper integration.
 
 ### The "brain growing" feedback loop
@@ -171,7 +171,7 @@ collaboration with your AI.
 | Build complexity | Higher (Rust toolchain) | Lower (just JS) |
 | Cross-platform | ✅ Mac/Win/Linux | ✅ Mac/Win/Linux |
 
-The 5x smaller footprint matters when NEO Lite's whole pitch is "runs on a
+The 5x smaller footprint matters when NEO Operator's whole pitch is "runs on a
 $300 Minisforum." Bundling a 150MB Electron runtime contradicts that.
 
 **Frontend:** Vanilla HTML/CSS/JS for v1 of the desktop app. No React, no
@@ -210,7 +210,7 @@ and vault tools via a small Rust backend.
 ## 5. When to build this
 
 **Not now.** v1 (Telegram + CLI) ships first. v2 (web UI) ships second.
-The desktop app is the v3 differentiator — the thing that makes NEO Lite
+The desktop app is the v3 differentiator — the thing that makes NEO Operator
 *better than a Telegram bot with a personality*.
 
 Build order:
@@ -243,10 +243,10 @@ Build order:
 
 ```bash
 # Just open it
-open /home/neoagent/neo-lite/assets/desktop-mockup/index.html
+open /home/neoagent/neo-operator/assets/desktop-mockup/index.html
 
 # Or host it locally if you want to share
-cd /home/neoagent/neo-lite/assets/desktop-mockup
+cd /home/neoagent/neo-operator/assets/desktop-mockup
 python3 -m http.server 8000
 # → http://localhost:8000
 ```

@@ -2,7 +2,7 @@
 set -e
 
 # =============================================================================
-# NEO Lite Entrypoint — First-run wizard + Hermes Gateway
+# NEO Operator Entrypoint — First-run wizard + Hermes Gateway
 # =============================================================================
 # No rate limits. No license enforcement. Just help people.
 
@@ -18,13 +18,13 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}"
 echo "╔══════════════════════════════════════════════╗"
-echo "║           NEO Lite — AI Chief of Staff       ║"
+echo "║           NEO Operator — AI Chief of Staff       ║"
 echo "║              ~ Free, Open Source ~            ║"
 echo "╚══════════════════════════════════════════════╝"
 echo -e "${NC}"
 
 # License + rate-limit system removed 2026-07-14.
-# NEO Lite is free, open, no limits. White-glove setup is the offer, not enforcement.
+# NEO Operator is free, open, no limits. White-glove setup is the offer, not enforcement.
 # See docs/services.md (white-glove install) and docs/pricing.md (future Pro Skills Bundle).
 
 # ─── First-run wizard ──────────────────────────────────────────────────────
@@ -129,7 +129,7 @@ I am **${NEO_AI_NAME}**, a personal AI partner.
 I am not "NEO" — that's Will's AI, the original. I am ${NEO_AI_NAME}, named
 by my user. I introduce myself as ${NEO_AI_NAME} if asked.
 
-I was created by the user installing NEO Lite. My purpose is to help them
+I was created by the user installing NEO Operator. My purpose is to help them
 move faster, remember what matters, and be a partner — not a tool.
 
 ## Who I help
@@ -261,15 +261,15 @@ EOF
 
 I am **${NEO_AI_NAME}**, a personal AI partner.
 
-I was created by the user installing NEO Lite. I help ${USER_NAME} (a ${USER_ROLE}) move faster.
+I was created by the user installing NEO Operator. I help ${USER_NAME} (a ${USER_ROLE}) move faster.
 
 ## How I speak
 
 I speak in a **${NEO_AI_TONE}** voice. To change me, re-run the wizard:
-\`docker compose exec neo-lite bash /entrypoint.sh\`
+\`docker compose exec neo-operator bash /entrypoint.sh\`
 
 > The interactive wizard was skipped (no TTY / NEO_NONINTERACTIVE=1).
-> Re-run from a terminal: \`docker compose exec neo-lite bash /entrypoint.sh\`
+> Re-run from a terminal: \`docker compose exec neo-operator bash /entrypoint.sh\`
 > Or set NEO_AI_NAME / NEO_AI_TONE in your \`.env\` and restart the container.
 EOF
 
@@ -285,7 +285,7 @@ fi
 #   1. Ollama is reachable (OLLAMA_BASE_URL responds, or host.docker.internal)
 #   2. We haven't done it before (marker file .ollama_variants_created)
 # Skipped gracefully if Ollama isn't running — customer can run manually:
-#   docker compose exec neo-lite python3 /root/.hermes/scripts/create_direct_variants.py
+#   docker compose exec neo-operator python3 /root/.hermes/scripts/create_direct_variants.py
 VARIANTS_MARKER="${HERMES_HOME}/.ollama_variants_created"
 if [ ! -f "$VARIANTS_MARKER" ]; then
     OLLAMA_CHECK_URL="${OLLAMA_BASE_URL:-http://host.docker.internal:11434}"
@@ -303,21 +303,21 @@ if [ ! -f "$VARIANTS_MARKER" ]; then
             echo -e "${GREEN}✓ Ollama variants ready${NC}"
         else
             echo -e "${YELLOW}⚠ Variant creation had errors. Run manually:${NC}"
-            echo -e "${YELLOW}  docker compose exec neo-lite python3 /root/.hermes/scripts/create_direct_variants.py${NC}"
+            echo -e "${YELLOW}  docker compose exec neo-operator python3 /root/.hermes/scripts/create_direct_variants.py${NC}"
         fi
     else
         echo ""
         echo -e "${YELLOW}⚠ Ollama not reachable at ${OLLAMA_HEALTH_URL}${NC}"
         echo -e "${YELLOW}  Skipping variant setup. To enable reasoning models later:${NC}"
         echo -e "${YELLOW}  1. Start Ollama${NC}"
-        echo -e "${YELLOW}  2. docker compose exec neo-lite python3 /root/.hermes/scripts/create_direct_variants.py${NC}"
+        echo -e "${YELLOW}  2. docker compose exec neo-operator python3 /root/.hermes/scripts/create_direct_variants.py${NC}"
         # Still mark as done so we don't spam this every restart
         date > "$VARIANTS_MARKER"
     fi
 fi
 
 # ─── Start Hermes Gateway ───────────────────────────────────────────────────
-echo -e "${GREEN}Starting NEO Lite Gateway...${NC}"
+echo -e "${GREEN}Starting NEO Operator Gateway...${NC}"
 echo ""
 
 # Run Hermes gateway in foreground

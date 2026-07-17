@@ -1,6 +1,6 @@
-# NEO Lite Support Agent
+# NEO Operator Support Agent
 
-A specialized AI agent that does the white-glove install work for NEO Lite customers, so Will doesn't have to be on every Zoom call.
+A specialized AI agent that does the white-glove install work for NEO Operator customers, so Will doesn't have to be on every Zoom call.
 
 ## What it does
 
@@ -26,7 +26,7 @@ export CUSTOMER_EMAIL="jane@example.com"
 export CUSTOMER_TELEGRAM_TOPIC="<topic_id>"
 export WILL_TELEGRAM_CHAT_ID="<your_telegram_id>"
 
-python3 /home/neoagent/neo-lite/parts/support-agent/support_agent.py
+python3 /home/neoagent/neo-operator/parts/support-agent/support_agent.py
 ```
 
 The agent will:

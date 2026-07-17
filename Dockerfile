@@ -1,5 +1,5 @@
 # =============================================================================
-# NEO Lite — Multi-stage Dockerfile (v1.0.0)
+# NEO Operator — Multi-stage Dockerfile (v1.0.0)
 # =============================================================================
 # Build: docker compose build
 # Run:   docker compose up -d
@@ -22,7 +22,7 @@ FROM python:3.11-slim
 
 WORKDIR /opt/hermes
 
-LABEL description="NEO Lite — Your AI Chief of Staff (Free Tier)"
+LABEL description="NEO Operator — Your AI Chief of Staff (Free Tier)"
 LABEL vendor="NEO Cloud"
 LABEL version="1.0.0"
 
@@ -42,7 +42,7 @@ COPY --from=hermes-builder /usr/local/bin/hermes /usr/local/bin/hermes
 COPY --from=hermes-builder /usr/local/lib/hermes-agent /usr/local/lib/hermes-agent
 COPY --from=hermes-builder /root/.hermes /root/.hermes
 
-# Copy NEO Lite configuration and scripts
+# Copy NEO Operator configuration and scripts
 COPY config/ /root/.hermes/
 COPY scripts/ /root/.hermes/scripts/
 COPY skills/ /root/.hermes/skills/
@@ -50,15 +50,15 @@ COPY skills/ /root/.hermes/skills/
 # Install NEO CLI commands
 COPY scripts/neo-parts /usr/local/bin/neo-parts
 RUN chmod +x /usr/local/bin/neo-parts && \
-    printf '#!/bin/bash\n# NEO Lite unified CLI\ncase "${1:-}" in\n    parts) shift; exec neo-parts "$@" ;;\n    version|-v|--version) echo "NEO Lite v1.0.0" ;;\n    help|-h|--help|"") echo "Usage: neo <command> [args]\nCommands:\n  parts          Manage add-on capability parts\n  version        Show version\n  help           Show this help" ;;\n    *) echo "Unknown command: $1. Try '\''neo help'\''." ;;\nesac\n' > /usr/local/bin/neo && chmod +x /usr/local/bin/neo
+    printf '#!/bin/bash\n# NEO Operator unified CLI\ncase "${1:-}" in\n    parts) shift; exec neo-parts "$@" ;;\n    version|-v|--version) echo "NEO Operator v1.0.0" ;;\n    help|-h|--help|"") echo "Usage: neo <command> [args]\nCommands:\n  parts          Manage add-on capability parts\n  version        Show version\n  help           Show this help" ;;\n    *) echo "Unknown command: $1. Try '\''neo help'\''." ;;\nesac\n' > /usr/local/bin/neo && chmod +x /usr/local/bin/neo
 
 # Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Copy avatar pack and other assets (read-only, for users to discover via README)
-COPY assets/ /opt/neo-lite-assets/
-RUN chmod -R a+rX /opt/neo-lite-assets/
+COPY assets/ /opt/neo-operator-assets/
+RUN chmod -R a+rX /opt/neo-operator-assets/
 
 # Create parts directory (for add-on skill packs)
 RUN mkdir -p /root/.hermes/parts

@@ -23,7 +23,7 @@ Hard constraints (different from model router — task-driven):
     - If task must run without install → Bash only
 
 Config resolution: searches these locations in order
-  1. /opt/hermes/tools/language-selection-matrix/config.yaml (NEO Lite Docker)
+  1. /opt/hermes/tools/language-selection-matrix/config.yaml (NEO Operator Docker)
   2. <same dir as this router.py>/config.yaml (when shipped with product)
   3. ~/.hermes/skills/.../config.yaml (Will's N-Suite dev env)
 Override with --config PATH.
@@ -45,7 +45,7 @@ except ImportError:
 # ─── Defaults ────────────────────────────────────────────────────────────────
 
 DEFAULT_CONFIG_CANDIDATES = [
-    # Inside NEO Lite Docker container
+    # Inside NEO Operator Docker container
     Path("/opt/hermes/tools/language-selection-matrix/config.yaml"),
     # Alongside the router.py (when shipped with the product)
     Path(__file__).parent / "config.yaml",

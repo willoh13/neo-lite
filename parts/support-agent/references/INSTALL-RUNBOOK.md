@@ -1,4 +1,4 @@
-# NEO Lite Install Runbook
+# NEO Operator Install Runbook
 
 The support agent follows this step by step. Don't skip steps. Don't improvise. The runbook exists so every customer gets the same install.
 
@@ -8,7 +8,7 @@ The support agent follows this step by step. Don't skip steps. Don't improvise. 
 
 Before doing anything, confirm in the customer's Telegram topic:
 
-> Hi {name}! I'm the support agent for your NEO Lite install. Will roped me in so he doesn't have to be on every call. We'll do this together over the next ~2 hours. I'll drive, you watch and answer questions.
+> Hi {name}! I'm the support agent for your NEO Operator install. Will roped me in so he doesn't have to be on every call. We'll do this together over the next ~2 hours. I'll drive, you watch and answer questions.
 
 > Quick scope check:
 > 1. Did you pay the $2,499 invoice? (yes/no)
@@ -55,12 +55,12 @@ Once pre-flight is clean, drive them through the actual install. **You are talki
 
 > Now the actual install. I'll send you one command at a time. You paste it into your terminal, paste the output back. Don't run anything I haven't sent you.
 
-1. `cd ~ && git clone https://github.com/{will's-repo}/neo-lite.git`
-2. `cd neo-lite && cp .env.example .env`
+1. `cd ~ && git clone https://github.com/willoh13/neo-operator.git`
+2. `cd neo-operator && cp .env.example .env`
 3. Open `.env` in nano, paste in their API keys, save
 4. `docker compose up -d`
-5. Wait 60s, then `docker compose ps` — should show "neo-lite" running
-6. `docker compose logs neo-lite | tail -20` — paste this back
+5. Wait 60s, then `docker compose ps # is neo-operator running" running
+6. `docker compose logs neo-operator | tail -20` — paste this back
 
 **If the wizard is interactive:** walk them through it. **If `NEO_NONINTERACTIVE=1` is set:** they skip the wizard, set `NEO_AI_NAME` and `NEO_AI_TONE` in `.env` directly.
 
@@ -82,7 +82,7 @@ TELEGRAM_USER_ID=<their numeric Telegram user ID, found by messaging @userinfobo
 
 (Tell them to also send `/start` to their new bot to register the chat.)
 
-Then: `docker compose restart neo-lite` + wait 30s.
+Then: `docker compose restart neo-operator` + wait 30s.
 
 ### Step 5 — The handoff test
 

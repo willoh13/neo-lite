@@ -1,4 +1,4 @@
-# NEO Lite for Windows — Customer Install Guide
+# NEO Operator for Windows — Customer Install Guide
 ## The 10-Minute Install (No Docker, No WSL, No Linux)
 
 This guide installs **NEO Agent 2** — your personal AI chief of staff — on Windows 10 or 11. It uses the official Hermes Agent installer and adds the NEO personality layer, the full Skills Bundle, and your Telegram bot. Everything is one Python install, no virtual machines, no containers.
@@ -36,7 +36,7 @@ You can add more AI providers later. NEO picks the best one for each task automa
 
 ---
 
-## Part 1 — Install NEO Lite (the actual install)
+## Part 1 — Install NEO Operator (the actual install)
 
 This part has two phases. **Phase 1 installs Hermes** (the AI runtime — the foundation). **Phase 2 adds NEO on top** (personality, skills, your Telegram bot). Don't skip Phase 1.
 
@@ -115,7 +115,7 @@ Paste and Enter:
 ```powershell
 $downloads = [Environment]::GetFolderPath('UserProfile') + '\Downloads'
 $bundleZip = "$downloads\neo-bundle-v1.0.0.zip"
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-operator/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $bundleZip
 Expand-Archive -Path $bundleZip -DestinationPath $downloads -Force
 Get-ChildItem "$downloads\neo-bundle" -Recurse | Unblock-File
 
@@ -180,7 +180,7 @@ if (!(Test-Path "$hermesHome\.env")) {
     } else {
         # If the bundle didn't ship with .env.example, create a minimal one
         $minimalEnv = @"
-# NEO Lite — minimal .env (edit the values below)
+# NEO Operator — minimal .env (edit the values below)
 DEEPSEEK_API_KEY=
 TELE...=NEO Agent 2
 NEO_AI_TONE=friendly
@@ -336,7 +336,7 @@ When new skills or capabilities are released:
 ```powershell
 # Re-download the latest bundle
 $latest = "$env:USERPROFILE\Downloads\neo-bundle-latest.zip"
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-lite/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $latest
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/willoh13/neo-operator/test-public-flag/dist/neo-bundle-v1.0.0.zip' -OutFile $latest
 Expand-Archive -Path $latest -DestinationPath "$env:USERPROFILE\Downloads\bundle-latest" -Force
 
 # Re-apply (overwrites your old skills/tools/parts)
@@ -411,7 +411,7 @@ hermes uninstall
 
 ## Part 5 — What's included in the Skills Bundle
 
-This is what you get with NEO Lite (free) and the Pro Skills Bundle ($79). Everything in the bundle is included in the install above.
+This is what you get with NEO Operator (free) and the Pro Skills Bundle ($79). Everything in the bundle is included in the install above.
 
 ### Add-on Parts (capability packs)
 
@@ -420,8 +420,8 @@ This is what you get with NEO Lite (free) and the Pro Skills Bundle ($79). Every
 
 ### Skills (workflows NEO knows how to run)
 
-- **neo-lite-planner** — Breaks big goals into step-by-step plans
-- **neo-lite-researcher** — Multi-source research with citations
+- **neo-operator-planner** — Breaks big goals into step-by-step plans
+- **neo-operator-researcher** — Multi-source research with citations
 
 ### Tools (utilities NEO can call)
 
@@ -440,9 +440,9 @@ This is what you get with NEO Lite (free) and the Pro Skills Bundle ($79). Every
 ## Need help?
 
 - **Telegram support** — message the bot that came with your purchase (Pro Skills Bundle customers only)
-- **Email** — support@neo-lite.example
+- **Email** — support@neo-operator.example
 - **Discord** — coming soon
-- **GitHub issues** — https://github.com/willoh13/neo-lite/issues
+- **GitHub issues** — https://github.com/willoh13/neo-operator/issues
 
 **Common fix time:** 90% of issues are fixed by restarting the gateway (`hermes gateway restart`) or re-checking the `.env` file for typos.
 

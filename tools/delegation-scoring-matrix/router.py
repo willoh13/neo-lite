@@ -18,7 +18,7 @@ Hard constraints filter out ineligible models first.
 Tie-breakers (cheaper, local, faster) pick the winner when scores are close.
 
 Config resolution: searches these locations in order
-  1. /opt/hermes/tools/delegation-scoring-matrix/config.yaml (NEO Lite Docker)
+  1. /opt/hermes/tools/delegation-scoring-matrix/config.yaml (NEO Operator Docker)
   2. <same dir as this router.py>/config.yaml (when shipped with product)
   3. ~/.hermes/skills/.../config.yaml (Will's N-Suite dev env)
 Override with --config PATH.
@@ -41,7 +41,7 @@ except ImportError:
 # ─── Defaults ────────────────────────────────────────────────────────────────
 
 DEFAULT_CONFIG_CANDIDATES = [
-    # Inside NEO Lite Docker container
+    # Inside NEO Operator Docker container
     Path("/opt/hermes/tools/delegation-scoring-matrix/config.yaml"),
     # Alongside the router.py (when shipped with the product)
     Path(__file__).parent / "config.yaml",

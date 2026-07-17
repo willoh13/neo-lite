@@ -1,10 +1,10 @@
 ---
-name: neo-lite-planner
+name: neo-operator-planner
 description: "Break down a goal into actionable steps"
 version: 1.0.0
 ---
 
-# NEO Lite Planner
+# NEO Operator Planner
 
 Turn a vague goal into concrete next steps.
 

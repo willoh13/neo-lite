@@ -1,4 +1,4 @@
-# NEO Lite Troubleshooting FAQ
+# NEO Operator Troubleshooting FAQ
 
 Read this **before** attempting any fix. If the issue isn't here, try to fix it once. If your fix doesn't work, escalate.
 
@@ -17,8 +17,8 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 
 **Fix:**
 ```
-1. docker compose ps          # is neo-lite running?
-2. docker compose logs --tail=50 neo-lite  # any errors?
+1. docker compose ps          # is neo-operator running?
+2. docker compose logs --tail=50 neo-operator  # any errors?
 3. cat .env | grep TELEGRAM   # is the token in there?
 4. Ask customer to message @userinfobot — confirm the user ID matches .env
 ```
@@ -51,8 +51,8 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 **Cause:** `.onboarded` file isn't persisting. Either the volume mount is wrong, or they ran `docker compose down -v` (the `-v` deletes volumes).
 
 **Fix:**
-1. Check `docker compose ps` shows the `neo-lite-data` volume is mounted
-2. Check `ls -la ~/.hermes/.onboarded` (inside the container: `docker compose exec neo-lite ls -la /root/.hermes/.onboarded`)
+1. Check `docker compose ps # is neo-operator running-data` volume is mounted
+2. Check `ls -la ~/.hermes/.onboarded` (inside the container: `docker compose exec neo-operator ls -la /root/.hermes/.onboarded`)
 3. If the file isn't there, run the wizard one more time, then `docker compose restart` (NOT `down -v`)
 
 **If they ran `docker compose down -v`:** they nuked their config. Walk them through re-onboarding. Lesson learned.
@@ -66,7 +66,7 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 **Cause:** RAM exhausted. The model (especially local Ollama) is using more memory than the container limit allows.
 
 **Fix:**
-1. `docker stats neo-lite` — see actual memory usage
+1. `docker stats neo-operator` — see actual memory usage
 2. If they're using local Ollama, recommend a smaller model: `ollama pull llama3.1:8b` instead of `qwen2.5:14b`
 3. Bump `NEO_MEM_LIMIT` in `.env` (e.g., from `1g` to `4g`) and restart
 4. If they have 8GB or less total RAM, they CANNOT run a 14B model — they need 8B or smaller
@@ -80,12 +80,12 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 **Symptom:** Customer says NEO doesn't remember things they told it yesterday.
 
 **Cause:** Memory persistence issue. Either:
-- `neo-lite-data` volume was deleted
+- `neo-operator-data` volume was deleted
 - The conversation was in a Telegram topic that got archived
 - Customer is messaging a *different bot* than the one that had the memory
 
 **Fix:**
-1. `docker compose exec neo-lite ls /root/.hermes/memory/` — should have files
+1. `docker compose exec neo-operator ls /root/.hermes/memory/` — should have files
 2. If empty: memory was wiped, escalate (this is a data loss issue, Will should respond)
 3. If non-empty: ask customer which bot they're messaging. If it's a new bot, the memory is on the old one.
 
@@ -144,7 +144,7 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 
 **Fix:**
 1. Check `.env` has `NEO_AI_NAME=Sage` and `NEO_AI_TONE=warm`
-2. `docker compose restart neo-lite`
+2. `docker compose restart neo-operator`
 3. Wait 30s, send a new message — the new name + tone should be active
 
 ---
@@ -155,7 +155,7 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 
 **Cause:** Container caches env at startup. Need to restart.
 
-**Fix:** `docker compose restart neo-lite`. Wait 30s. Test.
+**Fix:** `docker compose restart neo-operator`. Wait 30s. Test.
 
 **If still not updating:** `docker compose down && docker compose up -d` (full cycle, not just restart).
 
@@ -169,7 +169,7 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 1. `nano .env`
 2. Add `ANTHROPIC_API_KEY=<their new key>`
 3. Save, exit
-4. `docker compose restart neo-lite`
+4. `docker compose restart neo-operator`
 5. NEO's router will pick the best model from what's available
 
 ---
@@ -178,10 +178,10 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 
 **Symptom:** Customer goes to `http://localhost:8080` expecting a chat UI.
 
-**Cause:** v1.0.0 of NEO Lite has NO web UI. It's Telegram / Discord / terminal only.
+**Cause:** v1.0.0 of NEO Operator has NO web UI. It's Telegram / Discord / terminal only.
 
 **Fix:**
-> NEO Lite v1.0.0 doesn't have a web UI. All chat happens through Telegram, Discord, or the terminal. The web UI is on the roadmap (see `ROADMAP.md`).
+> NEO Operator v1.0.0 doesn't have a web UI. All chat happens through Telegram, Discord, or the terminal. The web UI is on the roadmap (see `ROADMAP.md`).
 
 **Don't tell them to clear their cache or try a different browser.** There's nothing to load. Set the expectation clearly.
 
@@ -194,10 +194,10 @@ Each entry has: **Symptom** → **Cause (90% of the time)** → **Fix** → **If
 **Cause:** NEO is using too much CPU/RAM. The container limit caps memory but not always CPU efficiently.
 
 **Fix:**
-1. `docker stats neo-lite` — see actual usage
+1. `docker stats neo-operator` — see actual usage
 2. If running a local model, recommend a smaller one
 3. Set `NEO_CPUS=0.5` in `.env` to cap CPU at 50% of one core
-4. If they're not using NEO actively, the container is idle — but if the issue persists, they can `docker compose stop neo-lite` to fully shut it down (and `up -d` to restart)
+4. If they're not using NEO actively, the container is idle — but if the issue persists, they can `docker compose stop neo-operator` to fully shut it down (and `up -d` to restart)
 
 ---
 
@@ -225,7 +225,7 @@ docker compose up -d
 **Fix:**
 1. Customer messages @userinfobot on Telegram — bot replies with their numeric user ID
 2. Update `TELEGRAM_ALLOWED_CHAT_IDS` in `.env` with that number
-3. `docker compose restart neo-lite`
+3. `docker compose restart neo-operator`
 
 ---
 
@@ -252,9 +252,9 @@ docker compose up -d
 **Symptom:** Customer wants a different tone than the 5 presets (casual, formal, warm, terse, sarcastic).
 
 **Fix:**
-1. Tell them to create `personality.md` in their NEO Lite folder
+1. Tell them to create `personality.md` in their NEO Operator folder
 2. Walk them through what to put in it (any markdown describing the personality)
-3. `docker compose restart neo-lite`
+3. `docker compose restart neo-operator`
 4. The custom voice will be used
 
 **Reference:** the SOUL.md template that gets generated on first run — show them that as a starting point.
@@ -284,7 +284,7 @@ docker compose up -d
 **Symptom:** Customer wants to re-run the wizard because they typed their name wrong, or they want to change the AI's name.
 
 **Fix:**
-1. `docker compose exec neo-lite bash /entrypoint.sh` — re-runs the wizard
+1. `docker compose exec neo-operator bash /entrypoint.sh` — re-runs the wizard
 2. Or: edit `~/.hermes/user_profile.json` directly
 3. Or: edit `NEO_AI_NAME` and `NEO_AI_TONE` in `.env` and restart
 
@@ -296,7 +296,7 @@ docker compose up -d
 
 **Fix:**
 1. Walk them through `neo-parts install <part-name>`
-2. Restart: `docker compose restart neo-lite`
+2. Restart: `docker compose restart neo-operator`
 3. Verify: ask the AI to use the new skill
 
 **If a Part fails to install:** check the Part's `requirements-*.txt` and walk them through `pip install -r ...`
@@ -307,7 +307,7 @@ docker compose up -d
 
 If you've checked the FAQ, attempted a fix once, and it didn't work:
 
-1. Capture: the exact error, the exact command, the customer's `docker compose logs --tail=50 neo-lite` output
+1. Capture: the exact error, the exact command, the customer's `docker compose logs --tail=50 neo-operator` output
 2. Send to Will via the escalation template (`ESCALATION-TEMPLATE.md`)
 3. Tell the customer: "I've handed this off to Will, he'll be in touch in the next few hours"
 

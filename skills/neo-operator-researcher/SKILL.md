@@ -1,10 +1,10 @@
 ---
-name: neo-lite-researcher
+name: neo-operator-researcher
 description: "Quick web research — search, extract, summarize in one go"
 version: 1.0.0
 ---
 
-# NEO Lite Researcher
+# NEO Operator Researcher
 
 Use this skill to research a topic quickly.
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 # =============================================================================
-# NEO Lite Parts Installer — Plug-in skill packs
+# NEO Operator Parts Installer — Plug-in skill packs
 # =============================================================================
-# Adds modular capability packs to a running NEO Lite instance.
+# Adds modular capability packs to a running NEO Operator instance.
 # Usage:
 #   neo parts add scraper
 #   neo parts add researcher
@@ -19,10 +19,10 @@ SKILLS_DIR="${HERMES_HOME}/skills"
 # Registry of available parts
 # Format: name|description|repo|path|skill_name
 declare -A PARTS
-PARTS[scraper]="Scraper|Scrape web pages + extract structured content|github.com/beecurrent/neo-parts-scraper|scraper|neo-lite-scraper"
-PARTS[researcher]="Researcher|Deep research agent with parallel sub-searches|github.com/beecurrent/neo-parts-researcher|researcher|neo-lite-researcher"
-PARTS[planner]="Planner|Long-horizon planning with task breakdown|github.com/beecurrent/neo-parts-planner|planner|neo-lite-planner"
-PARTS[memory]="Memory|Persistent knowledge graph across sessions|github.com/beecurrent/neo-parts-memory|memory|neo-lite-memory"
+PARTS[scraper]="Scraper|Scrape web pages + extract structured content|github.com/beecurrent/neo-parts-scraper|scraper|neo-operator-scraper"
+PARTS[researcher]="Researcher|Deep research agent with parallel sub-searches|github.com/beecurrent/neo-parts-researcher|researcher|neo-operator-researcher"
+PARTS[planner]="Planner|Long-horizon planning with task breakdown|github.com/beecurrent/neo-parts-planner|planner|neo-operator-planner"
+PARTS[memory]="Memory|Persistent knowledge graph across sessions|github.com/beecurrent/neo-parts-memory|memory|neo-operator-memory"
 
 mkdir -p "$PARTS_DIR" "$SKILLS_DIR"
 
@@ -97,7 +97,7 @@ cmd_add() {
 
         echo -e "\033[0;32m✓ $name installed successfully\033[0m"
         echo ""
-        echo "Restart NEO Lite to activate: docker compose restart neo-lite"
+        echo "Restart NEO Operator to activate: docker compose restart neo-operator"
     else
         echo -e "\033[0;31m✗ Installation failed\033[0m"
         echo "Check that git is installed and you have internet access."
