@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# NEO Onboarding Wizard (v0.3 — local-first + custom assistant name)
+# NEO Onboarding Wizard (v0.4 — cross-platform path detection)
 # ============================================================
 # Designed to run automatically after neo-install.sh completes.
 # Walks a new user through 6 personality questions, writes
@@ -59,7 +59,42 @@ for arg in "$@"; do
 done
 
 # ---------- Paths ----------
-HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+# 1. Respect HERMES_HOME override (used for sandboxed testing).
+# 2. Ask Hermes itself where its config lives (works on every platform).
+# 3. Fall back to platform-specific defaults for Windows-native bash.
+# 4. Last resort: POSIX default ~/.hermes.
+if [[ -z "${HERMES_HOME:-}" ]]; then
+  if command -v hermes >/dev/null 2>&1; then
+    _hermes_config_path="$(hermes config path 2>/dev/null || true)"
+    if [[ -n "$_hermes_config_path" && -f "$_hermes_config_path" ]]; then
+      # hermes config path returns the FILE; we want the directory
+      HERMES_HOME="$(cd "$(dirname "$_hermes_config_path")" 2>/dev/null && pwd || true)"
+    fi
+  fi
+  if [[ -z "${HERMES_HOME:-}" ]]; then
+    # Platform-specific fallbacks
+    if [[ -n "${LOCALAPPDATA:-}" ]]; then
+      # Native Windows bash (Git Bash, MSYS2, Cygwin). $HOME is the Windows user dir.
+      HERMES_HOME="$LOCALAPPDATA/hermes"
+    elif [[ -n "${APPDATA:-}" && -z "${MSYS_NO_PATHCONV:-}" ]]; then
+      # Older Windows bash without LOCALAPPDATA (rare)
+      HERMES_HOME="$APPDATA/../LocalAppData/hermes"
+    elif [[ -r /proc/version ]] && grep -qi microsoft /proc/version 2>/dev/null; then
+      # WSL — Linux bash, but Windows files live under /mnt/c
+      # USER is the WSL username; the Windows username usually matches
+      _win_user="${USER:-${USERNAME:-}}"
+      if [[ -n "$_win_user" && -d "/mnt/c/Users/$_win_user/AppData/Local/hermes" ]]; then
+        HERMES_HOME="/mnt/c/Users/$_win_user/AppData/Local/hermes"
+      fi
+    fi
+  fi
+  if [[ -z "${HERMES_HOME:-}" ]]; then
+    # POSIX default (Linux, macOS, WSL without matching Windows user dir)
+    HERMES_HOME="$HOME/.hermes"
+  fi
+fi
+# Convert Windows-style backslash paths to forward slashes (Git Bash etc.)
+HERMES_HOME="${HERMES_HOME//\\//}"
 PERSONAS_DIR="$HERMES_HOME/personas"
 MEMORIES_DIR="$HERMES_HOME/memories"
 ENV_FILE="$HERMES_HOME/.env"
@@ -112,10 +147,21 @@ yes_no() {
 command -v hermes >/dev/null 2>&1 || die "hermes CLI not found on PATH. Install Hermes Agent first: https://hermes-agent.nousresearch.com/docs/getting-started" 2
 
 # ---------- Safety: --noninteractive + existing real data = refuse ----------
+# Refuse to clobber real data regardless of platform. We check whether the
+# resolved HERMES_HOME looks like a "default" location (not an explicit
+# HERMES_HOME override) AND MEMORY.md has content.
 if [[ "$NONINTERACTIVE" == "true" && "$FORCE_RESET" != "true" && "$DRY_RUN" != "true" ]]; then
-  if [[ "$HERMES_HOME" == "$HOME/.hermes" && -s "$MEMORY_FILE" ]]; then
-    die "Refusing to run in --noninteractive mode against real ~/.hermes with existing MEMORY.md.
+  # Build a list of "default" locations that count as real data (not test sandboxes)
+  _is_default=false
+  case "$HERMES_HOME" in
+    "$HOME/.hermes"|"/root/.hermes")        _is_default=true ;;  # Linux/macOS default
+    "$LOCALAPPDATA/hermes")                  _is_default=true ;;  # Windows Git Bash / MSYS2
+    "/mnt/c/Users"/*"/AppData/Local/hermes") _is_default=true ;;  # WSL
+  esac
+  if [[ "$_is_default" == "true" && -s "$MEMORY_FILE" ]]; then
+    die "Refusing to run in --noninteractive mode against real Hermes config with existing MEMORY.md.
 This protects you from accidentally clobbering your live memory.
+  ${BOLD}HERMES_HOME${NC} = $HERMES_HOME
 Either:
   • run interactively (drop the --noninteractive flag), OR
   • use HERMES_HOME=/tmp/test-folder bash $0 --noninteractive for sandboxed testing, OR
