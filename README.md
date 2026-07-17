@@ -1,8 +1,8 @@
-# NEO Lite — Your AI Chief of Staff
+# NEO Operator — Your AI Chief of Staff
 
 **~10 minutes. Telegram-first. Your own personal AI agent.**
 
-NEO Lite is a self-hosted AI partner that grows with you. Bring your own API
+NEO Operator is a self-hosted AI partner that grows with you. Bring your own API
 key from any provider (DeepSeek, OpenAI, Anthropic, Gemini, Grok, Groq,
 Ollama, or OpenRouter), point Docker at it, and you have a personal AI in
 10 minutes — running on your hardware, remembering who you are, ready to
@@ -28,7 +28,7 @@ chat from Telegram, Discord, or your terminal.
 Most AI tools are chatbots. NEO is the **first JARVIS you actually own** — and
 unlike Iron Man, you can name yours whatever you want.
 
-| Chatbot | NEO Lite |
+| Chatbot | NEO Operator |
 |---|---|
 | Forgets you the moment the window closes | Remembers your name, your business, your preferences — across sessions and across machines |
 | One model, one provider, one bill | Bring any API key from any provider. Switch any time. No lock-in. |
@@ -48,9 +48,9 @@ more you're missing. That's the JARVIS effect.
 
 **Windows (10/11)** — no git, no command line, no problem.
 
-1. Download the latest release: https://github.com/willoh13/neo-lite/releases/latest
-2. Download `neo-lite-windows.zip`
-3. Extract the ZIP somewhere you'll remember (e.g., `Documents\neo-lite`)
+1. Download the latest release: https://github.com/willoh13/neo-operator/releases/latest
+2. Download `neo-operator-windows.zip`
+3. Extract the ZIP somewhere you'll remember (e.g., `Documents\neo-operator`)
 4. Right-click `install-windows.bat` → **Run as administrator**
 5. Answer a few simple questions:
    - "Do you want NEO to use DeepSeek, OpenAI, or something else?" (pick one)
@@ -62,8 +62,8 @@ more you're missing. That's the JARVIS effect.
 **Mac / Linux** — slightly more command line, same idea.
 
 ```bash
-git clone https://github.com/willoh13/neo-lite.git
-cd neo-lite
+git clone https://github.com/willoh13/neo-operator.git
+cd neo-operator
 ./install.sh      # this is the Mac/Linux version of install-windows.bat
 ```
 
@@ -72,8 +72,8 @@ The installer asks the same questions: which provider, what's your key, want Tel
 ### I already have an API key (faster path)
 
 ```bash
-git clone https://github.com/willoh13/neo-lite.git
-cd neo-lite
+git clone https://github.com/willoh13/neo-operator.git
+cd neo-operator
 cp .env.example .env
 nano .env   # paste your key, save, exit
 docker compose up -d
@@ -119,10 +119,10 @@ Takes 2 minutes, lets you message your AI from your phone.
 
 NEO is Will's AI. Yours needs a name.
 
-The first time you start NEO Lite, the wizard will ask you to:
+The first time you start NEO Operator, the wizard will ask you to:
 
 1. **Pick a name** — something you'll actually say out loud. "Hey Atlas, what's on my calendar?" feels different from "Hey Assistant." Suggestions: Atlas, Friday, Nova, Jinx, Sage, Echo, Cal, Iris. The wizard's default is "Assistant" if you skip.
-2. **Pick a voice** — five built-in tones (casual, formal, warm, terse, sarcastic), or drop a `personality.md` file in your NEO Lite folder for a fully custom voice. See `examples/personalities/` for starter templates.
+2. **Pick a voice** — five built-in tones (casual, formal, warm, terse, sarcastic), or drop a `personality.md` file in your NEO Operator folder for a fully custom voice. See `examples/personalities/` for starter templates.
 
 Both go into your `.env` automatically:
 
@@ -154,7 +154,7 @@ We include a starter pack of 6 SVG avatars in `assets/avatars/`:
 
 Open the SVG in any browser, screenshot or export as 512x512 PNG, then upload via `/setuserpic`. See `assets/avatars/README.md` for full instructions and how to customize.
 
-> **Coming soon:** A web UI for NEO Lite. For v1, Telegram + terminal are the only ways to chat. The web UI is the next thing we build.
+> **Coming soon:** A web UI for NEO Operator. For v1, Telegram + terminal are the only ways to chat. The web UI is the next thing we build.
 
 ---
 
@@ -179,7 +179,7 @@ shipped today are the floor, not the ceiling.
 
 ## Under the hood (for the curious)
 
-NEO Lite runs on top of [Hermes Agent](https://hermes-agent.nousresearch.com/docs) —
+NEO Operator runs on top of [Hermes Agent](https://hermes-agent.nousresearch.com/docs) —
 an open-source agent framework maintained by Nous Research. You don't need to
 install or configure Hermes separately; it's bundled in the container.
 
@@ -218,7 +218,7 @@ If you get that, you're done. Go build something.
 - ❌ A web app. There is no browser UI in v1.0.0. All chat goes through
   Telegram, Discord, or the terminal. **(Web UI is next on the roadmap — see "Make it yours" above for what to expect.)**
 - ❌ A replacement for human judgment. NEO is a partner, not a boss.
-- ❌ Free for unlimited use. NEO Lite is free and open source, no asterisks.
+- ❌ Free for unlimited use. NEO Operator is free and open source, no asterisks.
   Paid engagements are white-glove setup (Will's time), not access.
   See [docs/services.md](docs/services.md).
 
@@ -228,7 +228,7 @@ If you get that, you're done. Go build something.
 
 - 📖 Docs: https://hermes-agent.nousresearch.com/docs
 - 💬 Community: [Discord link]
-- 🐛 Bugs: github.com/willoh13/neo-lite/issues
+- 🐛 Bugs: github.com/willoh13/neo-operator/issues
 - ✉️ Direct: reply to the email that sent you this link
 
 If you get stuck, send the error message to the bot — NEO can usually

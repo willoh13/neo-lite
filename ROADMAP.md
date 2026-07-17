@@ -1,6 +1,6 @@
-# NEO Lite Roadmap
+# NEO Operator Roadmap
 
-Public roadmap for NEO Lite. We share this openly because customers deserve to know where the product is heading, and contributors deserve to know what to build.
+Public roadmap for NEO Operator. We share this openly because customers deserve to know where the product is heading, and contributors deserve to know what to build.
 
 **Status legend:** ✅ shipped · 🚧 in progress · ⏳ planned · 💭 considering
 
@@ -120,7 +120,7 @@ We're not building these (yet):
 - ❌ A GUI dashboard for tuning weights — YAML is the dashboard
 - ❌ Model hosting — we use existing APIs (OpenRouter, etc.)
 - ❌ Custom model training — too expensive, low ROI for our users
-- ❌ Mobile app — NEO Lite is a Docker container, run it anywhere Docker runs
+- ❌ Mobile app — NEO Operator is a Docker container, run it anywhere Docker runs
 
 ---
 
@@ -129,11 +129,11 @@ We're not building these (yet):
 - **Add a model to the registry:** edit `tools/delegation-scoring-matrix/config.yaml`. Score it on the 14 dimensions.
 - **Add a language:** edit `tools/language-selection-matrix/config.yaml`.
 - **Add a task preset:** add it under `task_presets:` in either config.
-- **File an issue:** https://github.com/willoh13/neo-lite/issues
+- **File an issue:** https://github.com/willoh13/neo-operator/issues
 - **PRs welcome:** keep changes scoped to one file (a config + a doc).
 
 ---
 
 ## License
 
-MIT — same as the rest of NEO Lite.
+MIT — same as the rest of NEO Operator.
