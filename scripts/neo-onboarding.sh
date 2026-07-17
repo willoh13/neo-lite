@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# NEO Onboarding Wizard (v0.4 — cross-platform path detection)
+# NEO Onboarding Wizard (v0.5 — assistant name in final output, root SOUL.md)
 # ============================================================
 # Designed to run automatically after neo-install.sh completes.
 # Walks a new user through 6 personality questions, writes
@@ -42,6 +42,9 @@ DRY_RUN=false
 FORCE_RESET=false
 SKIP_OPTIONAL=false
 NONINTERACTIVE=false
+# Default assistant name. Set early so the idempotency message (which runs
+# before the question) has a sensible name. Question 1/7 may overwrite this.
+ASSISTANT_NAME="NEO"
 
 for arg in "$@"; do
   case "$arg" in
@@ -95,10 +98,13 @@ if [[ -z "${HERMES_HOME:-}" ]]; then
 fi
 # Convert Windows-style backslash paths to forward slashes (Git Bash etc.)
 HERMES_HOME="${HERMES_HOME//\\//}"
-PERSONAS_DIR="$HERMES_HOME/personas"
+# SOUL.md lives at HERMES_HOME/SOUL.md (the root), NOT in personas/.
+# Hermes loads it via get_hermes_home() / "SOUL.md" (see
+# hermes-agent/agent/prompt_builder.py:1841). The personas/ dir was wrong.
+SOUL_FILE="$HERMES_HOME/SOUL.md"
+PERSONAS_DIR="$HERMES_HOME/personas"  # kept for backward compat (unused)
 MEMORIES_DIR="$HERMES_HOME/memories"
 ENV_FILE="$HERMES_HOME/.env"
-SOUL_FILE="$PERSONAS_DIR/SOUL.md"
 USER_FILE="$MEMORIES_DIR/USER.md"
 MEMORY_FILE="$MEMORIES_DIR/MEMORY.md"
 ONBOARDED_FLAG="$HERMES_HOME/.onboarded"
@@ -154,9 +160,9 @@ if [[ "$NONINTERACTIVE" == "true" && "$FORCE_RESET" != "true" && "$DRY_RUN" != "
   # Build a list of "default" locations that count as real data (not test sandboxes)
   _is_default=false
   case "$HERMES_HOME" in
-    "$HOME/.hermes"|"/root/.hermes")        _is_default=true ;;  # Linux/macOS default
-    "$LOCALAPPDATA/hermes")                  _is_default=true ;;  # Windows Git Bash / MSYS2
-    "/mnt/c/Users"/*"/AppData/Local/hermes") _is_default=true ;;  # WSL
+    "$HOME/.hermes"|"/root/.hermes")                  _is_default=true ;;  # Linux/macOS default
+    "${LOCALAPPDATA:-}/hermes"|"${APPDATA:-}/../LocalAppData/hermes")  _is_default=true ;;  # Windows Git Bash / MSYS2
+    "/mnt/c/Users"/*"/AppData/Local/hermes")          _is_default=true ;;  # WSL
   esac
   if [[ "$_is_default" == "true" && -s "$MEMORY_FILE" ]]; then
     die "Refusing to run in --noninteractive mode against real Hermes config with existing MEMORY.md.
@@ -171,7 +177,7 @@ fi
 
 # ---------- Idempotency check ----------
 if [[ -f "$ONBOARDED_FLAG" && "$FORCE_RESET" != "true" && "$DRY_RUN" != "true" ]]; then
-  say "${YLW}Heads up:${NC} NEO has already been onboarded on this machine."
+  say "${YLW}Heads up:${NC} $ASSISTANT_NAME has already been onboarded on this machine."
   say "Files written: ${DIM}$(date -r "$ONBOARDED_FLAG" '+%Y-%m-%d %H:%M:%S')${NC}"
   if [[ -t 0 ]]; then
     read -r -p "Re-onboard and overwrite SOUL/USER/MEMORY? (y/N): " REPLY
@@ -211,7 +217,7 @@ else
 fi
 
 # ---------- Wizard intro ----------
-header "Welcome to NEO"
+header "Welcome to $ASSISTANT_NAME"
 say "I'm going to ask 7 questions. Your answers shape how I work with you —"
 say "how I talk, what I focus on, and what I always remember."
 say ""
@@ -352,7 +358,9 @@ if (( ${#MEMORY_CONTENT} > 1900 )); then
 fi
 
 # ---------- Write files ----------
-$DRY_RUN || mkdir -p "$PERSONAS_DIR" "$MEMORIES_DIR"
+# SOUL.md goes in HERMES_HOME root (no subdir needed).
+# USER.md and MEMORY.md go in HERMES_HOME/memories/.
+$DRY_RUN || mkdir -p "$MEMORIES_DIR"
 
 write_file() {
   local path="$1" content="$2" label="$3"
@@ -451,8 +459,8 @@ fi
 
 # ---------- Optional: Telegram (so NEO can message you) ----------
 if [[ "$SKIP_OPTIONAL" != "true" ]]; then
-  header "Optional: talk to NEO from your phone?"
-  say "${DIM}You can message NEO from Telegram instead of always using the terminal.${NC}"
+  header "Optional: talk to $ASSISTANT_NAME from your phone?"
+  say "${DIM}You can message $ASSISTANT_NAME from Telegram instead of always using the terminal.${NC}"
   say "${DIM}Setup takes ~5 min — instructions at:${NC}"
   say "${DIM}  https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram${NC}"
   say ""
@@ -492,7 +500,7 @@ say "  ${BOLD}hermes${NC}        # start chatting in your terminal"
 say ""
 say "Other commands:"
 say "  ${BOLD}hermes model${NC}        # add/change AI model"
-say "  ${BOLD}hermes skills list${NC}  # browse what NEO can do"
+say "  ${BOLD}hermes skills list${NC}  # browse what $ASSISTANT_NAME can do"
 say "  ${BOLD}hermes doctor${NC}       # check for any issues"
 say ""
 say "To re-run this wizard later: ${BOLD}bash ~/.hermes/scripts/neo-onboarding.sh --reset${NC}"
