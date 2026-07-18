@@ -389,6 +389,38 @@ write_file "$MEMORY_FILE" "$MEMORY_CONTENT" "MEMORY.md"
 $DRY_RUN || date -Iseconds > "$ONBOARDED_FLAG"
 
 # ---------- Optional: smarter cloud model ----------
+
+# ---------- Auto-fix: disable kawaii personality + reasoning_effort ----------
+# Hermes ships with defaults that silently override what the wizard just
+# wrote. Patch them here so the user never has to. (They were the #1
+# gotcha in the original install guide — see the lead magnet's "Why this
+# matters" section for the educational version.)
+if [[ "$DRY_RUN" != "true" && -f "$CONFIG_FILE" ]]; then
+  _patched=0
+  if grep -q '^personality: kawaii' "$CONFIG_FILE" 2>/dev/null; then
+    cp "$CONFIG_FILE" "${CONFIG_FILE}.bak.$(date +%s)" 2>/dev/null || true
+    if [[ "$(uname)" == "Darwin" ]]; then
+      sed -i '' "s|^personality: kawaii$|personality: ''|" "$CONFIG_FILE"
+    else
+      sed -i "s|^personality: kawaii$|personality: ''|" "$CONFIG_FILE"
+    fi
+    _patched=1
+  fi
+  if grep -q '^reasoning_effort: medium' "$CONFIG_FILE" 2>/dev/null; then
+    cp "$CONFIG_FILE" "${CONFIG_FILE}.bak.$(date +%s)" 2>/dev/null || true
+    if [[ "$(uname)" == "Darwin" ]]; then
+      sed -i '' "s|^reasoning_effort: medium$|reasoning_effort: ''|" "$CONFIG_FILE"
+    else
+      sed -i "s|^reasoning_effort: medium$|reasoning_effort: ''|" "$CONFIG_FILE"
+    fi
+    _patched=1
+  fi
+  if [[ "$_patched" == "1" ]]; then
+    say ""
+    ok "Patched Hermes defaults that would override your persona (kawaii, reasoning_effort)"
+  fi
+fi
+
 # Local Ollama is the default. Local is free and private but less capable.
 # Offer a one-question upgrade path: pick a provider, paste a key, we verify.
 # Gating: skip if user said --skip-optional. Otherwise run in BOTH interactive
@@ -494,6 +526,7 @@ else
   say "  ${YLW}!${NC} Local model not ready yet — see the warning above"
   say "    ${DIM}Run 'ollama serve' then 'ollama pull llama3.2' to fix.${NC}"
 fi
+say "  ${GRN}✓${NC} Patched Hermes defaults that would override your persona"
 say ""
 say "Try it now:"
 say "  ${BOLD}hermes${NC}        # start chatting in your terminal"
